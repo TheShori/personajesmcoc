@@ -1,369 +1,325 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-    <link rel="manifest" href="site.webmanifest">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MCoC | Portrayer</title>
-    <script type="module" crossorigin src="./assets/index.8198a119.js"></script>
-    <link rel="stylesheet" href="./assets/index.87520ace.css">
-  </head>
-
-  <body>
-    <div id="app"></div>
-
-    <script>
-      (function () {
-        const FRAME_KEY = "useOld7Frame";
-        const ASC_KEY = "ascensionEnabled";
-        const ASC_LEVEL_KEY = "ascensionLevel";
-
-        let booted = false;
-        let exportHooked = false;
-        let tierHooked = false;
-
-        function getFrameFlag() {
-          return localStorage.getItem(FRAME_KEY) === "1";
-        }
-
-        function setFrameFlag(v) {
-          localStorage.setItem(FRAME_KEY, v ? "1" : "0");
-        }
-
-        function getAscensionFlag() {
-          return localStorage.getItem(ASC_KEY) === "1";
-        }
-
-        function setAscensionFlag(v) {
-          localStorage.setItem(ASC_KEY, v ? "1" : "0");
-        }
-
-        function getAscensionLevel() {
-          return localStorage.getItem(ASC_LEVEL_KEY) || "1";
-        }
-
-        function setAscensionLevel(v) {
-          localStorage.setItem(ASC_LEVEL_KEY, String(v));
-        }
-
-        function getTierInput() {
-          return document.querySelector('input[type="number"][min="1"][max="7"]');
-        }
-
-        function getCurrentTier() {
-          const input = getTierInput();
-          if (!input) return 7;
-          const value = parseInt(input.value || "7", 10);
-          return Number.isFinite(value) ? value : 7;
-        }
-
-        function getAscensionAssetPath() {
-          return "assets/ascension.PNG";
-        }
-
-        function getPreview() {
-          return document.getElementById("preview");
-        }
-
-        function getFrameCanvas() {
-          return document.getElementById("frame");
-        }
-
-        function ensureAscensionOverlay() {
-          const preview = getPreview();
-          if (!preview) return;
-
-          let icon = document.getElementById("ascensionIcon");
-          if (!icon) {
-            icon = document.createElement("img");
-            icon.id = "ascensionIcon";
-            icon.alt = "Ascension";
-            icon.src = getAscensionAssetPath();
-            icon.onerror = function () {
-              this.onerror = null;
-              this.src = "assets/ascension.png";
-            };
-            preview.appendChild(icon);
-          }
-
-          let number = document.getElementById("ascensionNumber");
-          if (!number) {
-            number = document.createElement("div");
-            number.id = "ascensionNumber";
-            number.textContent = getAscensionLevel();
-            preview.appendChild(number);
-          }
-
-          updateAscensionVisibility();
-        }
-
-        function updateAscensionVisibility() {
-          const icon = document.getElementById("ascensionIcon");
-          const number = document.getElementById("ascensionNumber");
-
-          if (!icon || !number) return;
-
-          const enabled = getAscensionFlag();
-          icon.style.display = enabled ? "block" : "none";
-          number.style.display = enabled ? "block" : "none";
-          number.textContent = getAscensionLevel();
-        }
-
-        function drawFrameCanvas() {
-  const frameCanvas = getFrameCanvas();
-  if (!frameCanvas) return;
-
-  const ctx = frameCanvas.getContext("2d");
-  if (!ctx) return;
-
-  const tier = getCurrentTier();
-  const useOld = getFrameFlag() && tier === 7;
-
-  const src = useOld
-    ? "assets/old_champion-frame-7.png"
-    : `assets/champion-frame-${tier}.png`;
-
-  const img = new Image();
-  img.onload = function () {
-    ctx.clearRect(0, 0, 500, 500);
-
-    let x = 78;
-    let y = 70;
-
-    /* Corrección solo para champion-frame-7.png */
-    if (tier === 7 && !useOld) {
-      x = 74;
-    }
-
-    ctx.drawImage(img, x, y);
-  };
-  img.src = src;
-}
-
-        function buildAscensionControl() {
-          if (document.getElementById("toggle-old-7frame")) return true;
-
-          const labels = Array.from(document.querySelectorAll("label"));
-          const duplicatedLabel = labels.find(l =>
-            (l.textContent || "").trim().toUpperCase().includes("ESTA DUPLICADO")
-          );
-
-          if (!duplicatedLabel) return false;
-
-          const wrap = document.createElement("label");
-          wrap.className = "input-group ascension-inline-wrap";
-
-          const content = document.createElement("span");
-          content.className = "ascension-inline-content";
-
-          const checkbox = document.createElement("input");
-          checkbox.type = "checkbox";
-          checkbox.id = "toggle-old-7frame";
-          checkbox.checked = getFrameFlag();
-
-          const text = document.createElement("span");
-          text.textContent = " Usar marco 7★ ASCENSION? ";
-
-          const levelLabel = document.createElement("span");
-          levelLabel.id = "ascensionLevelLabel";
-          levelLabel.textContent = " Nivel ";
-
-          const select = document.createElement("select");
-          select.id = "ascensionLevel";
-
-          for (let i = 1; i <= 12; i++) {
-            const opt = document.createElement("option");
-            opt.value = String(i);
-            opt.textContent = String(i);
-            if (String(i) === getAscensionLevel()) opt.selected = true;
-            select.appendChild(opt);
-          }
-
-          content.appendChild(checkbox);
-          content.appendChild(text);
-          content.appendChild(levelLabel);
-          content.appendChild(select);
-          wrap.appendChild(content);
-
-          duplicatedLabel.insertAdjacentElement("afterend", wrap);
-
-          checkbox.addEventListener("change", () => {
-            const checked = checkbox.checked;
-            setFrameFlag(checked);
-            setAscensionFlag(checked);
-            toggleLevelVisibility();
-            updateAscensionVisibility();
-            drawFrameCanvas();
-          });
-
-          select.addEventListener("change", () => {
-            setAscensionLevel(select.value);
-            updateAscensionVisibility();
-          });
-
-          toggleLevelVisibility();
-          return true;
-        }
-
-        function toggleLevelVisibility() {
-          const enabled = getAscensionFlag();
-          const label = document.getElementById("ascensionLevelLabel");
-          const select = document.getElementById("ascensionLevel");
-
-          if (label) label.style.display = enabled ? "inline-block" : "none";
-          if (select) select.style.display = enabled ? "inline-block" : "inline-block";
-        }
-
-        function hookTierChanges() {
-          if (tierHooked) return;
-          const tierInput = getTierInput();
-          if (!tierInput) return;
-
-          tierHooked = true;
-
-          tierInput.addEventListener("input", () => {
-            setTimeout(() => {
-              drawFrameCanvas();
-              updateAscensionVisibility();
-            }, 20);
-          });
-
-          tierInput.addEventListener("change", () => {
-            setTimeout(() => {
-              drawFrameCanvas();
-              updateAscensionVisibility();
-            }, 20);
-          });
-        }
-
-        function hookExportButton() {
-          if (exportHooked) return;
-          const btn = document.querySelector("button.button-contest");
-          if (!btn) return;
-
-          exportHooked = true;
-
-          btn.addEventListener(
-            "click",
-            function (ev) {
-              ev.preventDefault();
-              ev.stopImmediatePropagation();
-
-              const out = document.createElement("canvas");
-              out.width = 500;
-              out.height = 500;
-              const ctx = out.getContext("2d");
-
-              const ids = ["background", "frame", "portrait", "engraving", "tier", "strings", "rank"];
-              ids.forEach(id => {
-                const canvas = document.getElementById(id);
-                if (canvas) ctx.drawImage(canvas, 0, 0);
-              });
-
-              if (getAscensionFlag()) {
-                const icon = new Image();
-icon.onload = function () {
-  ctx.drawImage(icon, 374, 368, 74, 74);
-
-  ctx.font = "bold 24px 'Hanzel Normal', sans-serif";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.lineWidth = 4;
-  ctx.strokeStyle = "black";
-  ctx.fillStyle = "white";
-
-  const x = 411;
-  const y = 405;
-  const txt = getAscensionLevel();
-
-  ctx.strokeText(txt, x, y);
-  ctx.fillText(txt, x, y);
-
-  const a = document.createElement("a");
-  a.download = `portrait-${Date.now()}.png`;
-  a.href = out.toDataURL("image/png");
-  a.click();
-};
-                icon.onerror = function () {
-                  this.onerror = null;
-                  this.src = "assets/ascension.png";
-                };
-                icon.src = getAscensionAssetPath();
-              } else {
-                const a = document.createElement("a");
-                a.download = `portrait-${Date.now()}.png`;
-                a.href = out.toDataURL("image/png");
-                a.click();
-              }
-            },
-            true
-          );
-        }
-
-        function installFrameHook() {
-          if (window.__ascensionFrameHookInstalled) return;
-          window.__ascensionFrameHookInstalled = true;
-
-          try {
-            const desc = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, "src");
-            if (!desc || typeof desc.set !== "function" || typeof desc.get !== "function") return;
-
-            Object.defineProperty(HTMLImageElement.prototype, "src", {
-              get: desc.get,
-              set: function (value) {
-                try {
-                  const tier = getCurrentTier();
-                  if (
-                    getFrameFlag() &&
-                    tier === 7 &&
-                    typeof value === "string" &&
-                    value.includes("champion-frame-7.png") &&
-                    !value.includes("old_champion-frame-7.png")
-                  ) {
-                    value = value.replace("champion-frame-7.png", "old_champion-frame-7.png");
-                  }
-                } catch (e) {}
-                return desc.set.call(this, value);
-              },
-              configurable: true,
-              enumerable: true
-            });
-          } catch (e) {}
-        }
-
-        function readyForBoot() {
-          return (
-            !!getPreview() &&
-            !!document.querySelector("button.button-contest") &&
-            !!document.querySelectorAll("label").length
-          );
-        }
-
-        function boot() {
-          if (booted) return;
-          if (!readyForBoot()) return;
-
-          booted = true;
-          ensureAscensionOverlay();
-          buildAscensionControl();
-          hookTierChanges();
-          hookExportButton();
-          updateAscensionVisibility();
-          drawFrameCanvas();
-        }
-
-        installFrameHook();
-
-        let tries = 0;
-        const poll = setInterval(() => {
-          tries++;
-          boot();
-          if (booted || tries > 120) clearInterval(poll);
-        }, 150);
-      })();
-    </script>
-  </body>
+<html lang="es">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <meta content="#0b0d13" name="theme-color"/>
+  <meta content="Personaliza retratos de campeones de Marvel Contest of Champions con los recursos originales de Portrayer." name="description"/>
+  <title>
+   Portrayer Studio | MCoC
+  </title>
+  <link href="./favicon-32x32.png" rel="icon" sizes="32x32" type="image/png"/>
+  <link href="./favicon-16x16.png" rel="icon" sizes="16x16" type="image/png"/>
+  <link href="./apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/>
+  <link href="./site.webmanifest" rel="manifest"/>
+  <!-- Motor ORIGINAL. Estas dos rutas y la carpeta assets/ NO deben borrarse. -->
+  <script crossorigin="" src="./assets/index.8198a119.js" type="module">
+  </script>
+  <link href="./assets/index.87520ace.css" rel="stylesheet"/>
+  <!-- Solo se añaden estilos; se conserva el renderizador, datos y selector original. -->
+  <link href="./css/redesign.css" rel="stylesheet"/>
+ </head>
+ <body>
+  <div aria-hidden="true" class="px-background">
+  </div>
+  <header class="px-header">
+   <div class="px-header__brand">
+    <img alt="Logo Portrayer" height="49" src="./android-chrome-192x192.png" width="49"/>
+    <div class="px-header__identity">
+     <strong>
+      PORTRAYER
+      <span>
+       STUDIO
+      </span>
+     </strong>
+     <span>
+      MARVEL CON OF CHAMPIONS
+     </span>
+    </div>
+   </div>
+  </header>
+  <main class="px-main">
+   <!-- Navegación entre los dos generadores. No se desmonta el motor original. -->
+   <nav aria-label="Tipo de retrato" class="px-mode-tabs" role="tablist">
+    <button aria-controls="px-original-mode" aria-selected="true" class="px-mode-tab is-active" id="px-tab-original" role="tab" type="button">
+     ✦ Retrato cl&aacute;sico
+    </button>
+    <button aria-controls="px-stars-view" aria-selected="false" class="px-mode-tab" id="px-tab-stars" role="tab" type="button">
+     &starf; Ficha de estrellas
+    </button>
+   </nav>
+   <div aria-labelledby="px-tab-original" id="px-original-mode" role="tabpanel">
+    <!-- Vista de edición: se muestra al seleccionar cualquier campeón. -->
+    <section aria-label="Campe&oacute;n en edici&oacute;n" class="px-editing-bar" hidden="" id="px-editing-bar">
+     <div class="px-editing-bar__details">
+      <span class="px-editing-bar__tag">
+       EDITOR DE RETRATOS
+      </span>
+      <strong id="px-editing-name">
+       Campe&oacute;n seleccionado
+      </strong>
+      <span>
+       Personaliza su ficha y descarga el PNG cuando est&eacute; listo.
+      </span>
+     </div>
+     <button class="px-editing-bar__change" id="px-change-champion" type="button">
+      <span aria-hidden="true">
+       &telrec;
+      </span>
+      Cambiar campe&oacute;n
+     </button>
+    </section>
+    <!-- ¡IMPORTANTE! El motor compilado original monta la aplicación aquí. -->
+    <div id="app">
+    </div>
+   </div>
+   <!-- /px-original-mode -->
+   <!-- NUEVA PESTAÑA: usa las capas originales de #app sin rehacer los assets. -->
+   <section aria-labelledby="px-tab-stars" class="px-stars-view" hidden="" id="px-stars-view" role="tabpanel">
+    <div class="px-stars-layout">
+     <div class="px-stars-preview-pane">
+      <div class="px-stars-preview-top">
+       <span>
+        VISTA PREVIA EN DIRECTO
+       </span>
+       <span>
+        500 &times; 500 PNG
+       </span>
+      </div>
+      <canvas aria-label="Vista previa del retrato con estrellas doradas" height="500" id="px-stars-canvas" role="img" width="500">
+      </canvas>
+     </div>
+     <div aria-label="Opciones de ficha de estrellas" class="px-stars-controls">
+      <div class="px-stars-section-head">
+       <span class="px-eyebrow">
+        PERSONALIZA TU FICHA
+       </span>
+       <h2>
+        Configura tu campe&oacute;n
+       </h2>
+      </div>
+      <div class="px-stars-field">
+       <label for="px-stars-character">
+        Campe&oacute;n seleccionado
+       </label>
+       <div class="px-stars-selected-row">
+        <strong aria-live="polite" id="px-stars-character">
+         Elige un personaje&hellip;
+        </strong>
+        <button id="px-stars-change" type="button">
+         Cambiar
+        </button>
+       </div>
+      </div>
+      <div class="px-stars-fields-2">
+       <div class="px-stars-field">
+        <label for="px-stars-count">
+         N&uacute;mero de estrellas
+        </label>
+        <select id="px-stars-count">
+         <option value="1">
+          1 estrella
+         </option>
+         <option value="2">
+          2 estrellas
+         </option>
+         <option value="3">
+          3 estrellas
+         </option>
+         <option value="4">
+          4 estrellas
+         </option>
+         <option value="5">
+          5 estrellas
+         </option>
+         <option value="6">
+          6 estrellas
+         </option>
+         <option selected="" value="7">
+          7 estrellas
+         </option>
+        </select>
+       </div>
+       <div class="px-stars-field">
+        <label for="px-stars-frame">
+         Marco del campe&oacute;n
+        </label>
+        <select id="px-stars-frame">
+         <option value="auto">
+          Autom&aacute;tico (seg&uacute;n estrellas)
+         </option>
+         <option value="1">
+          Marco 1&starf;
+         </option>
+         <option value="2">
+          Marco 2&starf;
+         </option>
+         <option value="3">
+          Marco 3&starf;
+         </option>
+         <option value="4">
+          Marco 4&starf;
+         </option>
+         <option value="5">
+          Marco 5&starf;
+         </option>
+         <option value="6">
+          Marco 6&starf;
+         </option>
+         <option value="7">
+          Marco 7&starf;
+         </option>
+        </select>
+       </div>
+      </div>
+      <label class="px-stars-checkbox">
+       <input checked="" id="px-stars-duped" type="checkbox"/>
+       <span>
+        <strong>
+         Campe&oacute;n duplicado
+        </strong>
+        <small>
+         Duplicado: estrellas grises. Sin duplicar: estrellas doradas.
+        </small>
+       </span>
+      </label>
+      <label class="px-stars-checkbox">
+       <input id="px-stars-ascension" type="checkbox"/>
+       <span>
+        <strong>
+         Ascensi&oacute;n+ &middot; marco especial 7&starf;
+        </strong>
+        <small>
+         Activa autom&aacute;ticamente 7&starf;, utiliza el marco original de Ascensi&oacute;n+ y coloca el emblema dorado con el nivel elegido.
+        </small>
+       </span>
+      </label>
+      <div class="px-stars-field px-stars-asc-level">
+       <label for="px-stars-level">
+        Nivel de ascensi&oacute;n
+       </label>
+       <select id="px-stars-level">
+        <option value="1">
+         Nivel 1
+        </option>
+        <option value="2">
+         Nivel 2
+        </option>
+        <option value="3">
+         Nivel 3
+        </option>
+        <option value="4">
+         Nivel 4
+        </option>
+        <option value="5">
+         Nivel 5
+        </option>
+        <option value="6">
+         Nivel 6
+        </option>
+        <option value="7">
+         Nivel 7
+        </option>
+        <option value="8">
+         Nivel 8
+        </option>
+        <option value="9">
+         Nivel 9
+        </option>
+        <option value="10">
+         Nivel 10
+        </option>
+        <option value="11">
+         Nivel 11
+        </option>
+        <option value="12">
+         Nivel 12
+        </option>
+       </select>
+      </div>
+      <div class="px-stars-field">
+       <label for="px-stars-background">
+        Fondo del PNG
+       </label>
+       <select id="px-stars-background">
+        <option value="dark">
+         Verde oscuro (como la referencia)
+        </option>
+        <option value="transparent">
+         Transparente
+        </option>
+       </select>
+      </div>
+      <button class="px-stars-download" id="px-stars-download" type="button">
+       &darr; Descargar ficha PNG
+      </button>
+     </div>
+    </div>
+   </section>
+  </main>
+  <dialog aria-labelledby="px-picker-title" class="px-dialog" id="px-picker">
+   <div class="px-dialog__head">
+    <div>
+     <span class="px-eyebrow">
+      BIBLIOTECA DE PERSONAJES
+     </span>
+     <h2 id="px-picker-title">
+      Encuentra tu campe&oacute;n
+     </h2>
+     <p id="px-picker-description">
+      Busca un campe&oacute;n: su ficha aparecer&aacute; aqu&iacute; mismo, lista para editar.
+     </p>
+    </div>
+    <button aria-label="Cerrar" class="px-dialog__close" id="px-picker-close" type="button">
+     &times;
+    </button>
+   </div>
+   <label class="px-searchbox">
+    <span aria-hidden="true">
+     &telrec;
+    </span>
+    <input aria-label="Buscar por nombre" autocomplete="off" id="px-search" placeholder="Thanos, Doom, Spider-Man..." type="search"/>
+   </label>
+   <div class="px-dialog__workspace">
+    <aside aria-label="Resultados de b&uacute;squeda" class="px-dialog__sidebar">
+     <p aria-live="polite" class="px-dialog__meta" id="px-picker-meta" role="status">
+     </p>
+     <div class="px-dialog__list" id="px-picker-results" role="list">
+     </div>
+    </aside>
+    <section aria-label="Editor de retratos en directo" class="px-dialog__studio" id="px-inline-studio">
+     <div class="px-dialog__studio-title">
+      <div>
+       <span class="px-eyebrow">
+        EDITOR EN DIRECTO
+       </span>
+       <h3 id="px-inline-name">
+        Tu retrato personalizado
+       </h3>
+       <p>
+        Selecciona un resultado o escribe un nombre exacto. Edita la ficha aqu&iacute; mismo.
+       </p>
+      </div>
+      <span aria-hidden="true" class="px-dialog__live">
+       ● VISTA PREVIA
+      </span>
+     </div>
+     <div class="px-dialog__app-host" id="px-editor-target">
+     </div>
+    </section>
+   </div>
+   <p class="px-dialog__help">
+    El retrato grande y todos los controles son del editor original. Puedes editar y descargar el PNG sin salir del buscador.
+   </p>
+  </dialog>
+  <!-- Antes de que se ejecute el motor type=module, registramos la compatibilidad heredada. -->
+  <script src="./js/fit-name.js">
+  </script>
+  <script src="./js/compat-original.js">
+  </script>
+  <script defer="" src="./js/ui-original.js">
+  </script>
+  <script defer="" src="./js/stars-mode.js">
+  </script>
+ </body>
 </html>
