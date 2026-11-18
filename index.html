@@ -1,325 +1,324 @@
 <!DOCTYPE html>
+
 <html lang="es">
- <head>
-  <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1" name="viewport"/>
-  <meta content="#0b0d13" name="theme-color"/>
-  <meta content="Personaliza retratos de campeones de Marvel Contest of Champions con los recursos originales de Portrayer." name="description"/>
-  <title>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="#0b0d13" name="theme-color"/>
+<meta content="Personaliza retratos de campeones de Marvel Contest of Champions con los recursos originales de Portrayer." name="description"/>
+<title>
    Portrayer Studio | MCoC
   </title>
-  <link href="./favicon-32x32.png" rel="icon" sizes="32x32" type="image/png"/>
-  <link href="./favicon-16x16.png" rel="icon" sizes="16x16" type="image/png"/>
-  <link href="./apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/>
-  <link href="./site.webmanifest" rel="manifest"/>
-  <!-- Motor ORIGINAL. Estas dos rutas y la carpeta assets/ NO deben borrarse. -->
-  <script crossorigin="" src="./assets/index.8198a119.js" type="module">
-  </script>
-  <link href="./assets/index.87520ace.css" rel="stylesheet"/>
-  <!-- Solo se añaden estilos; se conserva el renderizador, datos y selector original. -->
-  <link href="./css/redesign.css" rel="stylesheet"/>
- </head>
- <body>
-  <div aria-hidden="true" class="px-background">
-  </div>
-  <header class="px-header">
-   <div class="px-header__brand">
-    <img alt="Logo Portrayer" height="49" src="./android-chrome-192x192.png" width="49"/>
-    <div class="px-header__identity">
-     <strong>
+<link href="./favicon-32x32.png" rel="icon" sizes="32x32" type="image/png"/>
+<link href="./favicon-16x16.png" rel="icon" sizes="16x16" type="image/png"/>
+<link href="./apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/>
+<link href="./site.webmanifest" rel="manifest"/>
+<!-- Motor ORIGINAL. Estas dos rutas y la carpeta assets/ NO deben borrarse. -->
+<script crossorigin="" src="./assets/index.8198a119.js" type="module">
+</script>
+<link href="./assets/index.87520ace.css" rel="stylesheet"/>
+<!-- Solo se añaden estilos; se conserva el renderizador, datos y selector original. -->
+<link href="./css/redesign.css" rel="stylesheet"/>
+</head>
+<body>
+<div aria-hidden="true" class="px-background">
+</div>
+<header class="px-header">
+<div class="px-header__brand">
+<img alt="Logo Portrayer" height="49" src="./android-chrome-192x192.png" width="49"/>
+<div class="px-header__identity">
+<strong>
       PORTRAYER
       <span>
        STUDIO
       </span>
-     </strong>
-     <span>
-      MARVEL CON OF CHAMPIONS
-     </span>
-    </div>
-   </div>
-  </header>
-  <main class="px-main">
-   <!-- Navegación entre los dos generadores. No se desmonta el motor original. -->
-   <nav aria-label="Tipo de retrato" class="px-mode-tabs" role="tablist">
-    <button aria-controls="px-original-mode" aria-selected="true" class="px-mode-tab is-active" id="px-tab-original" role="tab" type="button">
-     ✦ Retrato cl&aacute;sico
+</strong>
+<span>MARVEL CONTEST OF CHAMPIONS</span>
+</div>
+</div>
+</header>
+<main class="px-main">
+<!-- Navegación entre los dos generadores. No se desmonta el motor original. -->
+<nav aria-label="Tipo de retrato" class="px-mode-tabs" role="tablist">
+<button aria-controls="px-original-mode" aria-selected="true" class="px-mode-tab is-active" id="px-tab-original" role="tab" type="button">
+     ✦ Retrato clásico
     </button>
-    <button aria-controls="px-stars-view" aria-selected="false" class="px-mode-tab" id="px-tab-stars" role="tab" type="button">
-     &starf; Ficha de estrellas
+<button aria-controls="px-stars-view" aria-selected="false" class="px-mode-tab" id="px-tab-stars" role="tab" type="button">
+     ★ Ficha de estrellas
     </button>
-   </nav>
-   <div aria-labelledby="px-tab-original" id="px-original-mode" role="tabpanel">
-    <!-- Vista de edición: se muestra al seleccionar cualquier campeón. -->
-    <section aria-label="Campe&oacute;n en edici&oacute;n" class="px-editing-bar" hidden="" id="px-editing-bar">
-     <div class="px-editing-bar__details">
-      <span class="px-editing-bar__tag">
+</nav>
+<div aria-labelledby="px-tab-original" id="px-original-mode" role="tabpanel">
+<!-- Vista de edición: se muestra al seleccionar cualquier campeón. -->
+<section aria-label="Campeón en edición" class="px-editing-bar" hidden="" id="px-editing-bar">
+<div class="px-editing-bar__details">
+<span class="px-editing-bar__tag">
        EDITOR DE RETRATOS
       </span>
-      <strong id="px-editing-name">
-       Campe&oacute;n seleccionado
+<strong id="px-editing-name">
+       Campeón seleccionado
       </strong>
-      <span>
-       Personaliza su ficha y descarga el PNG cuando est&eacute; listo.
+<span>
+       Personaliza su ficha y descarga el PNG cuando esté listo.
       </span>
-     </div>
-     <button class="px-editing-bar__change" id="px-change-champion" type="button">
-      <span aria-hidden="true">
-       &telrec;
+</div>
+<button class="px-editing-bar__change" id="px-change-champion" type="button">
+<span aria-hidden="true">
+       ⌕
       </span>
-      Cambiar campe&oacute;n
+      Cambiar campeón
      </button>
-    </section>
-    <!-- ¡IMPORTANTE! El motor compilado original monta la aplicación aquí. -->
-    <div id="app">
-    </div>
-   </div>
-   <!-- /px-original-mode -->
-   <!-- NUEVA PESTAÑA: usa las capas originales de #app sin rehacer los assets. -->
-   <section aria-labelledby="px-tab-stars" class="px-stars-view" hidden="" id="px-stars-view" role="tabpanel">
-    <div class="px-stars-layout">
-     <div class="px-stars-preview-pane">
-      <div class="px-stars-preview-top">
-       <span>
+</section>
+<!-- ¡IMPORTANTE! El motor compilado original monta la aplicación aquí. -->
+<div id="app">
+</div>
+</div>
+<!-- /px-original-mode -->
+<!-- NUEVA PESTAÑA: usa las capas originales de #app sin rehacer los assets. -->
+<section aria-labelledby="px-tab-stars" class="px-stars-view" hidden="" id="px-stars-view" role="tabpanel">
+<div class="px-stars-layout">
+<div class="px-stars-preview-pane">
+<div class="px-stars-preview-top">
+<span>
         VISTA PREVIA EN DIRECTO
        </span>
-       <span>
-        500 &times; 500 PNG
+<span>
+        500 × 500 PNG
        </span>
-      </div>
-      <canvas aria-label="Vista previa del retrato con estrellas doradas" height="500" id="px-stars-canvas" role="img" width="500">
-      </canvas>
-     </div>
-     <div aria-label="Opciones de ficha de estrellas" class="px-stars-controls">
-      <div class="px-stars-section-head">
-       <span class="px-eyebrow">
+</div>
+<canvas aria-label="Vista previa del retrato con estrellas doradas" height="500" id="px-stars-canvas" role="img" width="500">
+</canvas>
+</div>
+<div aria-label="Opciones de ficha de estrellas" class="px-stars-controls">
+<div class="px-stars-section-head">
+<span class="px-eyebrow">
         PERSONALIZA TU FICHA
        </span>
-       <h2>
-        Configura tu campe&oacute;n
+<h2>
+        Configura tu campeón
        </h2>
-      </div>
-      <div class="px-stars-field">
-       <label for="px-stars-character">
-        Campe&oacute;n seleccionado
+</div>
+<div class="px-stars-field">
+<label for="px-stars-character">
+        Campeón seleccionado
        </label>
-       <div class="px-stars-selected-row">
-        <strong aria-live="polite" id="px-stars-character">
-         Elige un personaje&hellip;
+<div class="px-stars-selected-row">
+<strong aria-live="polite" id="px-stars-character">
+         Elige un personaje…
         </strong>
-        <button id="px-stars-change" type="button">
+<button id="px-stars-change" type="button">
          Cambiar
         </button>
-       </div>
-      </div>
-      <div class="px-stars-fields-2">
-       <div class="px-stars-field">
-        <label for="px-stars-count">
-         N&uacute;mero de estrellas
+</div>
+</div>
+<div class="px-stars-fields-2">
+<div class="px-stars-field">
+<label for="px-stars-count">
+         Número de estrellas
         </label>
-        <select id="px-stars-count">
-         <option value="1">
+<select id="px-stars-count">
+<option value="1">
           1 estrella
          </option>
-         <option value="2">
+<option value="2">
           2 estrellas
          </option>
-         <option value="3">
+<option value="3">
           3 estrellas
          </option>
-         <option value="4">
+<option value="4">
           4 estrellas
          </option>
-         <option value="5">
+<option value="5">
           5 estrellas
          </option>
-         <option value="6">
+<option value="6">
           6 estrellas
          </option>
-         <option selected="" value="7">
+<option selected="" value="7">
           7 estrellas
          </option>
-        </select>
-       </div>
-       <div class="px-stars-field">
-        <label for="px-stars-frame">
-         Marco del campe&oacute;n
+</select>
+</div>
+<div class="px-stars-field">
+<label for="px-stars-frame">
+         Marco del campeón
         </label>
-        <select id="px-stars-frame">
-         <option value="auto">
-          Autom&aacute;tico (seg&uacute;n estrellas)
+<select id="px-stars-frame">
+<option value="auto">
+          Automático (según estrellas)
          </option>
-         <option value="1">
-          Marco 1&starf;
+<option value="1">
+          Marco 1★
          </option>
-         <option value="2">
-          Marco 2&starf;
+<option value="2">
+          Marco 2★
          </option>
-         <option value="3">
-          Marco 3&starf;
+<option value="3">
+          Marco 3★
          </option>
-         <option value="4">
-          Marco 4&starf;
+<option value="4">
+          Marco 4★
          </option>
-         <option value="5">
-          Marco 5&starf;
+<option value="5">
+          Marco 5★
          </option>
-         <option value="6">
-          Marco 6&starf;
+<option value="6">
+          Marco 6★
          </option>
-         <option value="7">
-          Marco 7&starf;
+<option value="7">
+          Marco 7★
          </option>
-        </select>
-       </div>
-      </div>
-      <label class="px-stars-checkbox">
-       <input checked="" id="px-stars-duped" type="checkbox"/>
-       <span>
-        <strong>
-         Campe&oacute;n duplicado
+</select>
+</div>
+</div>
+<label class="px-stars-checkbox">
+<input checked="" id="px-stars-duped" type="checkbox"/>
+<span>
+<strong>
+         Campeón duplicado
         </strong>
-        <small>
+<small>
          Duplicado: estrellas grises. Sin duplicar: estrellas doradas.
         </small>
-       </span>
-      </label>
-      <label class="px-stars-checkbox">
-       <input id="px-stars-ascension" type="checkbox"/>
-       <span>
-        <strong>
-         Ascensi&oacute;n+ &middot; marco especial 7&starf;
+</span>
+</label>
+<label class="px-stars-checkbox">
+<input id="px-stars-ascension" type="checkbox"/>
+<span>
+<strong>
+         Ascensión+ · marco especial 7★
         </strong>
-        <small>
-         Activa autom&aacute;ticamente 7&starf;, utiliza el marco original de Ascensi&oacute;n+ y coloca el emblema dorado con el nivel elegido.
+<small>
+         Activa automáticamente 7★, utiliza el marco original de Ascensión+ y coloca el emblema dorado con el nivel elegido.
         </small>
-       </span>
-      </label>
-      <div class="px-stars-field px-stars-asc-level">
-       <label for="px-stars-level">
-        Nivel de ascensi&oacute;n
+</span>
+</label>
+<div class="px-stars-field px-stars-asc-level">
+<label for="px-stars-level">
+        Nivel de ascensión
        </label>
-       <select id="px-stars-level">
-        <option value="1">
+<select id="px-stars-level">
+<option value="1">
          Nivel 1
         </option>
-        <option value="2">
+<option value="2">
          Nivel 2
         </option>
-        <option value="3">
+<option value="3">
          Nivel 3
         </option>
-        <option value="4">
+<option value="4">
          Nivel 4
         </option>
-        <option value="5">
+<option value="5">
          Nivel 5
         </option>
-        <option value="6">
+<option value="6">
          Nivel 6
         </option>
-        <option value="7">
+<option value="7">
          Nivel 7
         </option>
-        <option value="8">
+<option value="8">
          Nivel 8
         </option>
-        <option value="9">
+<option value="9">
          Nivel 9
         </option>
-        <option value="10">
+<option value="10">
          Nivel 10
         </option>
-        <option value="11">
+<option value="11">
          Nivel 11
         </option>
-        <option value="12">
+<option value="12">
          Nivel 12
         </option>
-       </select>
-      </div>
-      <div class="px-stars-field">
-       <label for="px-stars-background">
+</select>
+</div>
+<div class="px-stars-field">
+<label for="px-stars-background">
         Fondo del PNG
        </label>
-       <select id="px-stars-background">
-        <option value="dark">
+<select id="px-stars-background">
+<option value="dark">
          Verde oscuro (como la referencia)
         </option>
-        <option value="transparent">
+<option value="transparent">
          Transparente
         </option>
-       </select>
-      </div>
-      <button class="px-stars-download" id="px-stars-download" type="button">
-       &darr; Descargar ficha PNG
+</select>
+</div>
+<button class="px-stars-download" id="px-stars-download" type="button">
+       ↓ Descargar ficha PNG
       </button>
-     </div>
-    </div>
-   </section>
-  </main>
-  <dialog aria-labelledby="px-picker-title" class="px-dialog" id="px-picker">
-   <div class="px-dialog__head">
-    <div>
-     <span class="px-eyebrow">
+</div>
+</div>
+</section>
+</main>
+<dialog aria-labelledby="px-picker-title" class="px-dialog" id="px-picker">
+<div class="px-dialog__head">
+<div>
+<span class="px-eyebrow">
       BIBLIOTECA DE PERSONAJES
      </span>
-     <h2 id="px-picker-title">
-      Encuentra tu campe&oacute;n
+<h2 id="px-picker-title">
+      Encuentra tu campeón
      </h2>
-     <p id="px-picker-description">
-      Busca un campe&oacute;n: su ficha aparecer&aacute; aqu&iacute; mismo, lista para editar.
+<p id="px-picker-description">
+      Busca un campeón: su ficha aparecerá aquí mismo, lista para editar.
      </p>
-    </div>
-    <button aria-label="Cerrar" class="px-dialog__close" id="px-picker-close" type="button">
-     &times;
+</div>
+<button aria-label="Cerrar" class="px-dialog__close" id="px-picker-close" type="button">
+     ×
     </button>
-   </div>
-   <label class="px-searchbox">
-    <span aria-hidden="true">
-     &telrec;
+</div>
+<label class="px-searchbox">
+<span aria-hidden="true">
+     ⌕
     </span>
-    <input aria-label="Buscar por nombre" autocomplete="off" id="px-search" placeholder="Thanos, Doom, Spider-Man..." type="search"/>
-   </label>
-   <div class="px-dialog__workspace">
-    <aside aria-label="Resultados de b&uacute;squeda" class="px-dialog__sidebar">
-     <p aria-live="polite" class="px-dialog__meta" id="px-picker-meta" role="status">
-     </p>
-     <div class="px-dialog__list" id="px-picker-results" role="list">
-     </div>
-    </aside>
-    <section aria-label="Editor de retratos en directo" class="px-dialog__studio" id="px-inline-studio">
-     <div class="px-dialog__studio-title">
-      <div>
-       <span class="px-eyebrow">
+<input aria-label="Buscar por nombre" autocomplete="off" id="px-search" placeholder="Thanos, Doom, Spider-Man..." type="search"/>
+</label>
+<div class="px-dialog__workspace">
+<aside aria-label="Resultados de búsqueda" class="px-dialog__sidebar">
+<p aria-live="polite" class="px-dialog__meta" id="px-picker-meta" role="status">
+</p>
+<div class="px-dialog__list" id="px-picker-results" role="list">
+</div>
+</aside>
+<section aria-label="Editor de retratos en directo" class="px-dialog__studio" id="px-inline-studio">
+<div class="px-dialog__studio-title">
+<div>
+<span class="px-eyebrow">
         EDITOR EN DIRECTO
        </span>
-       <h3 id="px-inline-name">
+<h3 id="px-inline-name">
         Tu retrato personalizado
        </h3>
-       <p>
-        Selecciona un resultado o escribe un nombre exacto. Edita la ficha aqu&iacute; mismo.
+<p>
+        Selecciona un resultado o escribe un nombre exacto. Edita la ficha aquí mismo.
        </p>
-      </div>
-      <span aria-hidden="true" class="px-dialog__live">
+</div>
+<span aria-hidden="true" class="px-dialog__live">
        ● VISTA PREVIA
       </span>
-     </div>
-     <div class="px-dialog__app-host" id="px-editor-target">
-     </div>
-    </section>
-   </div>
-   <p class="px-dialog__help">
+</div>
+<div class="px-dialog__app-host" id="px-editor-target">
+</div>
+</section>
+</div>
+<p class="px-dialog__help">
     El retrato grande y todos los controles son del editor original. Puedes editar y descargar el PNG sin salir del buscador.
    </p>
-  </dialog>
-  <!-- Antes de que se ejecute el motor type=module, registramos la compatibilidad heredada. -->
-  <script src="./js/fit-name.js">
-  </script>
-  <script src="./js/compat-original.js">
-  </script>
-  <script defer="" src="./js/ui-original.js">
-  </script>
-  <script defer="" src="./js/stars-mode.js">
-  </script>
- </body>
+</dialog>
+<!-- Antes de que se ejecute el motor type=module, registramos la compatibilidad heredada. -->
+<script src="./js/fit-name.js">
+</script>
+<script src="./js/png-export.js"></script><script src="./js/compat-original.js">
+</script>
+<script defer="" src="./js/ui-original.js">
+</script>
+<script defer="" src="./js/stars-mode.js">
+</script>
+</body>
 </html>

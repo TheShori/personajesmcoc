@@ -296,16 +296,18 @@
           if (!btn) return;
           exportHooked = true;
 
-          btn.addEventListener('click', async function (event) {
+          btn.addEventListener('click', function (event) {
             event.preventDefault();
             event.stopImmediatePropagation();
 
-            // Si el usuario exporta antes de que termine de cargar el icono,
-            // esperar a la imagen para no obtener una descarga incompleta.
+            // Nada de await: Safari necesita que Guardar/Compartir sea provocado
+            // directamente por el toque del usuario en este mismo turno.
             if (getAscensionFlag()) {
-              await loadBadgeImage();
-              if (document.fonts?.ready) await document.fonts.ready;
-              drawAscensionOverlay();
+              if (!badgeImage) {
+                window.alert('El emblema de Ascensión+ se está cargando. Espera un momento y vuelve a pulsar Descargar.');
+                return;
+              }
+              drawAscensionOverlay(); // El recurso se precarga al abrir el editor.
             }
 
             const out = document.createElement('canvas');
@@ -314,20 +316,29 @@
             const ctx = out.getContext('2d');
             if (!ctx) return;
 
-            for (const id of ['background', 'frame', 'portrait', 'engraving', 'tier', 'strings', 'rank']) {
-              const layer = document.getElementById(id);
-              if (layer) ctx.drawImage(layer, 0, 0);
+            try {
+              for (const id of ['background','frame','portrait','engraving','tier','strings','rank']) {
+                const layer = document.getElementById(id);
+                if (layer instanceof HTMLCanvasElement) ctx.drawImage(layer, 0, 0, 500, 500);
+              }
+              if (getAscensionFlag()) {
+                const overlay = document.getElementById('ascensionOverlay');
+                if (overlay instanceof HTMLCanvasElement) ctx.drawImage(overlay, 0, 0, 500, 500);
+              }
+              const filename = `portrait-${Date.now()}.png`;
+              if (window.PortrayerPNG) window.PortrayerPNG.saveCanvas(out, filename);
+              else {
+                const a = document.createElement('a');
+                a.href = out.toDataURL('image/png');
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+              }
+            } catch (error) {
+              console.error('[Portrayer] Error al descargar el retrato clásico', error);
+              window.alert('No se ha podido generar el PNG. Recarga la página y vuelve a intentarlo.');
             }
-
-            if (getAscensionFlag()) {
-              const overlay = document.getElementById('ascensionOverlay');
-              if (overlay) ctx.drawImage(overlay, 0, 0);
-            }
-
-            const link = document.createElement('a');
-            link.download = `portrait-${Date.now()}.png`;
-            link.href = out.toDataURL('image/png');
-            link.click();
           }, true);
         }
 

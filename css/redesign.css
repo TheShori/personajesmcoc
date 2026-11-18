@@ -644,3 +644,155 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
   .px-main { padding-top: 16px; }
   .px-mode-tabs { margin-bottom: 14px; }
 }
+
+
+/* =============================================================
+   HOTFIX responsive y descarga para iPhone/iPad / escritorio
+   Se conserva el renderizador Vue y los canvas ORIGINALES.
+   ============================================================= */
+html, body { max-width:100%; overflow-x:hidden; }
+.px-main, #px-original-mode, #app, .px-stars-view, .px-stars-layout,
+.px-stars-controls, .px-stars-preview-pane { min-width:0; }
+
+/* Safari: inputs/select nativos no deben forzar el ancho del formulario. */
+#app label, #app .input-group, #app .form, #app [class*="control"],
+#app [class*="form"] { max-width:100%; min-width:0; box-sizing:border-box; }
+#app input:not([type="checkbox"]):not([type="radio"]),
+#app select:not(#ascensionLevel), #app textarea {
+  display:block;
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  box-sizing:border-box !important;
+  color:#f5f7fe !important;
+  background-color:#1d293d !important;
+  font-size:16px !important;
+  -webkit-appearance:none;
+  appearance:none;
+}
+#app select:not(#ascensionLevel), .px-stars-field select {
+  padding-right:38px !important;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23d9e2f1' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+  background-repeat:no-repeat !important;
+  background-position:right 13px center !important;
+  background-size:14px 14px !important;
+  -webkit-appearance:none;
+  appearance:none;
+}
+#app select option, .px-stars-field select option { color:#f9f9fd; background:#1b293f; }
+#app #ascensionLevel { display:inline-block; width:76px !important; min-width:76px !important; max-width:76px; font-size:16px !important; }
+
+/* Reforzar la composición de capas: el acabado de la vista clásica no
+   debe quedar apagado al abrir selectores o cambiar de pestaña. */
+#app #preview { opacity:1 !important; mix-blend-mode:normal !important; }
+#app #preview canvas { opacity:1 !important; mix-blend-mode:normal !important; }
+#app #preview #background { z-index:1; }
+#app #preview #frame { z-index:2; }
+#app #preview #portrait { z-index:3; }
+#app #preview #engraving { z-index:4; }
+#app #preview #tier { z-index:5; }
+#app #preview #strings { z-index:6; }
+#app #preview #rank { z-index:7; }
+#app #preview #ascensionOverlay { z-index:22; }
+
+/* Modal de PNG: en iPhone se ofrece Compartir o guardar manteniendo pulsado. */
+.px-png-save-dialog {
+  width:min(520px,calc(100vw - 22px)); max-width:calc(100vw - 22px);
+  max-height:min(94dvh,900px); overflow-y:auto;
+  margin:auto; padding:18px; border:1px solid rgba(242,196,108,.45);
+  border-radius:18px; background:#121c2c; color:#f4f7fd;
+  box-shadow:0 24px 70px rgba(0,0,0,.6);
+}
+.px-png-save-dialog::backdrop { background:rgba(2,7,16,.84); }
+.px-png-save-header { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; margin-bottom:12px; }
+.px-png-save-header > div { display:grid; gap:4px; }
+.px-png-save-header strong { font-size:18px; }
+.px-png-save-header small { font-size:12px; color:#9dacc3; }
+.px-png-close { flex:none; width:40px; height:40px; border:1px solid #40536f; border-radius:10px; font-size:25px; color:#fff; background:#283850; }
+.px-png-save-image {
+  display:grid; place-items:center; width:100%; padding:12px; border-radius:12px;
+  background-color:#121d2b;
+  background-image:linear-gradient(45deg, #22334a 25%,transparent 25%),
+    linear-gradient(-45deg, #22334a 25%,transparent 25%),
+    linear-gradient(45deg,transparent 75%,#22334a 75%),
+    linear-gradient(-45deg,transparent 75%,#22334a 75%);
+  background-size:20px 20px; background-position:0 0,0 10px,10px -10px,-10px 0;
+}
+.px-png-save-image img { width:min(100%,380px); height:auto; display:block; -webkit-touch-callout:default; }
+.px-png-save-hint { margin:13px 0; color:#becce0; font-size:13px; line-height:1.5; }
+.px-png-save-actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.px-png-save-actions > * {
+  display:flex; align-items:center; justify-content:center; min-height:46px;
+  border:1px solid rgba(242,196,108,.35); border-radius:10px;
+  padding:8px 10px; text-align:center; text-decoration:none;
+  background:#e8b65e; color:#1b160b; font:750 13px/1.2 system-ui,sans-serif;
+}
+.px-png-save-actions .px-png-download-link { background:#263651; color:#f5e0b4; }
+
+@media (min-width:900px) {
+  .px-stars-layout { grid-template-columns:minmax(360px,.94fr) minmax(390px,1fr); gap:20px; }
+  .px-stars-preview-pane { position:sticky; top:20px; }
+  #app .input-group, #app label { min-width:0 !important; }
+}
+@media (max-width:899px) {
+  #app { max-width:100% !important; }
+  #app #preview {
+    width:min(100%,500px) !important; max-width:100% !important;
+    height:auto !important; aspect-ratio:1/1;
+    flex:0 1 auto !important; margin:0 auto 12px !important;
+    isolation:isolate;
+  }
+  #app #preview canvas { width:100% !important; height:100% !important; }
+  .px-stars-layout { grid-template-columns:minmax(0,1fr); gap:16px; }
+  .px-stars-preview-pane { padding:16px; }
+  .px-stars-controls { padding:17px; gap:15px; }
+}
+@media (max-width:620px) {
+  .px-main { width:calc(100% - 24px); margin-inline:auto; padding-top:14px; }
+  .px-header { padding:12px 14px; min-height:64px; }
+  .px-header__brand { gap:8px; }
+  .px-header__brand img { width:38px; height:38px; }
+  .px-header__identity strong { font-size:clamp(14px,4vw,17px); }
+  .px-header__identity > span { letter-spacing:.08em; font-size:8px; white-space:normal; }
+  .px-mode-tabs { width:100%; gap:5px; padding:5px; margin-bottom:14px; }
+  .px-mode-tab { flex:1 1 0; min-width:0; padding:12px 7px; font-size:12px; white-space:normal; }
+  #app { padding:12px !important; border-radius:18px !important; }
+  #app .input-group { margin-bottom:10px; }
+  #app input, #app select, .px-stars-field select { min-height:46px; border-radius:10px !important; }
+  .px-stars-preview-pane, .px-stars-controls { border-radius:17px; }
+  .px-stars-preview-pane { padding:13px; gap:12px; }
+  .px-stars-preview-top { font-size:10px; }
+  #px-stars-canvas { max-width:100%; width:100%; border-radius:12px; }
+  .px-stars-controls { padding:16px 14px; }
+  .px-stars-section-head h2 { margin:4px 0 10px; font-size:22px; }
+  .px-stars-fields-2 { grid-template-columns:minmax(0,1fr); gap:12px; }
+  .px-stars-field select { font-size:16px; }
+  .px-stars-selected-row { min-width:0; }
+  .px-stars-selected-row strong { min-width:0; }
+  .px-stars-selected-row button { flex:none; }
+  .px-stars-download, #app .button-contest { min-height:50px; font-size:15px !important; }
+  .px-png-save-dialog { padding:13px; }
+  .px-png-save-actions { grid-template-columns:1fr; }
+
+  /* El selector nativo del campeón produce una capa blanca enorme en iOS.
+     Se mantiene en DOM para el motor Vue, pero se elige desde la biblioteca. */
+  #app .px-native-champion-wrap { display:none !important; }
+  #app .px-library-shortcut { display:grid; gap:7px; margin:2px 0 16px; }
+  #app .px-library-shortcut__label { display:block; }
+  #app .px-inline-picker { width:100% !important; min-height:47px; font-size:14px; margin:0; text-align:left; justify-content:flex-start; padding-inline:14px; }
+}
+
+/* Biblioteca inmediatamente debajo de la selección original, nunca al final del formulario. */
+#app .px-library-shortcut { display:flex; width:100%; max-width:100%; justify-content:flex-end; align-items:center; gap:10px; margin:0 0 12px; min-width:0; }
+#app .px-library-shortcut__label { display:none; color:#a8b7cc; font-size:12px; font-weight:750; letter-spacing:.03em; }
+#app .px-library-shortcut .px-inline-picker { max-width:100%; overflow-wrap:anywhere; }
+@media(max-width:620px) {
+  #app .px-library-shortcut { display:grid; grid-template-columns:minmax(0,1fr); justify-items:stretch; gap:7px; margin:4px 0 17px; }
+  #app .px-library-shortcut__label { display:block; }
+}
+/* En PC permitimos campos amplios con controles bien definidos. */
+@media(min-width:900px) {
+  #app { padding:clamp(24px,2.8vw,38px) !important; }
+  #app .px-inline-picker { margin-top:2px; }
+  .px-stars-preview-pane, .px-stars-controls { min-height:0; }
+}

@@ -373,56 +373,52 @@
     document.dispatchEvent(new Event('px:open-picker'));
   }
 
-  async function download() {
-    // La exportación debe salir SIN fondo, en PNG transparente.
-    // Espera a que se haya cargado el marco seleccionado (normal / Ascensión+).
+  function download() {
+    // Descarga/Compartir en el MISMO toque: evita que Safari iOS bloquee el PNG.
     const path = frameAssetPath(selectedFrameTier());
     if (!state.frameCache.get(path)) {
       frameImage(selectedFrameTier());
-      const started = Date.now();
-      while (state.frameCache.get(path) === null && Date.now() - started < 4000) {
-        await new Promise(resolve => setTimeout(resolve, 80));
-      }
+      window.alert('El marco todavía se está cargando. Espera a verlo en la vista previa y vuelve a pulsar Descargar.');
+      return;
     }
-    if (!state.frameCache.get(path)) {
-      window.alert('No se pudo cargar el marco original desde assets/. Comprueba que exista: ' + path);
+    if (!state.goldStarImage || !state.greyStarImage) {
+      window.alert('Las estrellas originales todavía se están cargando. Vuelve a pulsar Descargar.');
       return;
     }
     const previousBg = choices.background.value;
-    choices.background.value = 'transparent';
-    draw();
-    if (!state.lastPortraitPresent) {
+    try {
+      choices.background.value = 'transparent';
+      draw();
+      if (!state.lastPortraitPresent) {
+        window.alert('El personaje todavía no ha terminado de cargar. Selecciónalo en la biblioteca y vuelve a intentarlo.');
+        return;
+      }
+      const filename = (state.champion || 'campeon').normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9-]+/g, '-')
+        .replace(/^-+|-+$/g, '').slice(0, 60);
+      if (window.PortrayerPNG) {
+        window.PortrayerPNG.saveCanvas(canvas, `mcoc-${filename}-${choices.count.value}estrellas.png`);
+      } else {
+        const anchor = document.createElement('a');
+        anchor.href = canvas.toDataURL('image/png');
+        anchor.download = `mcoc-${filename}-${choices.count.value}estrellas.png`;
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+      }
+    } catch (error) {
+      console.error('[Portrayer] Error al descargar la ficha de estrellas', error);
+      window.alert('No se pudo generar el PNG. Recarga la página y vuelve a intentarlo.');
+    } finally {
       choices.background.value = previousBg;
       draw();
-      window.alert('El retrato del campeón todavía no se ha cargado. Elige un personaje o inténtalo de nuevo.');
-      return;
     }
-    const filename = (state.champion || 'campeon').normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9-]+/g, '-')
-      .replace(/^-+|-+$/g, '').slice(0, 60);
-    const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
-    if (!blob) {
-      choices.background.value = previousBg;
-      draw();
-      return;
-    }
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-    anchor.download = `mcoc-${filename}-${choices.count.value}estrellas.png`;
-    anchor.href = url;
-    document.body.appendChild(anchor);
-    anchor.click();
-    anchor.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 10000);
-    // Restaurar la vista previa al valor visible en el selector.
-    choices.background.value = previousBg;
-    draw();
   }
 
   el('px-tab-original').addEventListener('click', () => showMode('original'));
   el('px-tab-stars').addEventListener('click', () => showMode('stars'));
   el('px-stars-change').addEventListener('click', openChampionSearch);
-  el('px-stars-download').addEventListener('click', () => { void download(); });
+  el('px-stars-download').addEventListener('click', download);
 
   choices.count.addEventListener('change', () => {
     // Ascensión+ solo corresponde al marco de 7 estrellas.

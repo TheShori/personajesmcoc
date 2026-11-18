@@ -379,17 +379,41 @@
   function installInlineLibraryButton() {
     const champion = findChampionControl();
     if (!champion) return false;
-    if (app.querySelector('.px-inline-picker')) return true;
+    const existing = app.querySelector('.px-library-shortcut');
+    if (existing) return true;
+
+    // El selector propio del motor se conserva (Vue lo necesita). En iPhone
+    // se oculta visualmente y se reemplaza por el botón de la biblioteca,
+    // evitando el desplegable blanco gigante de Safari.
+    const nativeGroup = champion.closest('.input-group') || champion.parentElement;
+    if (nativeGroup && nativeGroup !== app) nativeGroup.classList.add('px-native-champion-wrap');
+
+    const shortcut = document.createElement('div');
+    shortcut.className = 'px-library-shortcut';
+    const label = document.createElement('span');
+    label.className = 'px-library-shortcut__label';
+    label.textContent = 'PERSONAJE A ELEGIR';
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'px-inline-picker';
-    button.textContent = '⌕ Biblioteca de personajes';
-    button.setAttribute('aria-haspopup', 'dialog');
-    button.setAttribute('aria-label', 'Abrir biblioteca para buscar campeón');
-    button.addEventListener('click', () => { void openPicker(); });
-    let container = champion.closest('.input-group') || champion.parentElement;
-    if (container?.tagName === 'LABEL') container = container.parentElement;
-    (container || app).appendChild(button);
+    button.setAttribute('aria-haspopup','dialog');
+    button.setAttribute('aria-label','Abrir biblioteca para elegir un campeón');
+    button.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      void openPicker();
+    });
+    const updatePickerLabel = () => {
+      const value = String(champion.value || '').trim();
+      button.textContent = value ? `⌕ Buscar o cambiar: ${value}` : '⌕ Buscar campeón';
+    };
+    updatePickerLabel();
+    champion.addEventListener('change', updatePickerLabel);
+    champion.addEventListener('input', updatePickerLabel);
+    shortcut.append(label, button);
+
+    if (nativeGroup && nativeGroup !== app) nativeGroup.insertAdjacentElement('afterend', shortcut);
+    else champion.insertAdjacentElement('afterend', shortcut);
     return true;
   }
   // Vue puede actualizar el formulario al elegir personaje: recuperamos el
@@ -397,7 +421,7 @@
   installInlineLibraryButton();
   if (app) {
     const observer = new MutationObserver(() => {
-      if (!app.querySelector('.px-inline-picker')) installInlineLibraryButton();
+      if (!app.querySelector('.px-library-shortcut')) installInlineLibraryButton();
     });
     observer.observe(app, { childList: true, subtree: true });
   }
