@@ -103,7 +103,8 @@
   function setChampionName(name) {
     const cleaned = String(name || '').trim();
     state.champion = cleaned;
-    el('px-stars-character').textContent = cleaned || 'Elige un personaje…';
+    const selectedText = el('px-stars-character');
+    if (selectedText) selectedText.textContent = cleaned || 'Elige un personaje…';
     scheduleDraw();
   }
 
@@ -336,7 +337,6 @@
 
   function showMode(newMode) {
     const isStars = newMode === 'stars';
-    if (el('px-picker')?.open) el('px-picker').close();
     if (isStars && !state.active) {
       // Al volver a Retrato clásico, recuperamos sus ajustes de rareza y duplicado.
       state.classicalSettings = {
@@ -367,10 +367,6 @@
       updateAscensionControls();
       scheduleDraw();
     }
-  }
-
-  function openChampionSearch() {
-    document.dispatchEvent(new Event('px:open-picker'));
   }
 
   function download() {
@@ -417,7 +413,6 @@
 
   el('px-tab-original').addEventListener('click', () => showMode('original'));
   el('px-tab-stars').addEventListener('click', () => showMode('stars'));
-  el('px-stars-change').addEventListener('click', openChampionSearch);
   el('px-stars-download').addEventListener('click', download);
 
   choices.count.addEventListener('change', () => {

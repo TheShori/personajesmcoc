@@ -776,7 +776,7 @@ html, body { max-width:100%; overflow-x:hidden; }
 
   /* El selector nativo del campeón produce una capa blanca enorme en iOS.
      Se mantiene en DOM para el motor Vue, pero se elige desde la biblioteca. */
-  #app .px-native-champion-wrap { display:none !important; }
+  #app .px-native-champion-wrap { display:block !important; }
   #app .px-library-shortcut { display:grid; gap:7px; margin:2px 0 16px; }
   #app .px-library-shortcut__label { display:block; }
   #app .px-inline-picker { width:100% !important; min-height:47px; font-size:14px; margin:0; text-align:left; justify-content:flex-start; padding-inline:14px; }
@@ -796,3 +796,126 @@ html, body { max-width:100%; overflow-x:hidden; }
   #app .px-inline-picker { margin-top:2px; }
   .px-stars-preview-pane, .px-stars-controls { min-height:0; }
 }
+
+
+/* ============================================================
+   11 · SELECTOR NATIVO + MAQUETACIÓN LIMPIA (NOV 2026)
+   No usamos modal ni añadimos elementos que tapen el retrato.
+   ============================================================== */
+
+/* Evitar oscurecimientos por estilos heredados de las iteraciones anteriores. */
+#px-original-mode, #app, #app > *, #app #preview,
+#app #preview canvas, #app .input-group {
+  opacity: 1 !important;
+  visibility: visible;
+  mix-blend-mode: normal !important;
+}
+#app #preview {
+  filter: none !important;
+  isolation: isolate;
+  background-color: transparent !important;
+}
+#app #preview::before { pointer-events:none !important; }
+#app :is(label, .input-group) {
+  color: #b8c7dc !important;
+  opacity: 1 !important;
+}
+#app .input-group > label, #app label:not(:has(input)) {
+  color: #b8c7dc !important;
+}
+
+/* Dropdown clásico: se mantiene el control real Vue, sin overlays. */
+#app .px-native-champion-wrap,
+#app .px-native-champion-wrap * {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+#app .px-native-champion-wrap { display:block !important; }
+#app .px-library-shortcut { display:none !important; }
+#app select:not(#ascensionLevel),
+#app input[list] {
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  min-height: 52px;
+  background-color: #202d43 !important;
+  color: #f5f7fd !important;
+  -webkit-text-fill-color: #f5f7fd !important;
+  border: 1px solid #3d4f6a !important;
+  border-radius: 11px !important;
+  padding: 12px 42px 12px 15px !important;
+  box-shadow: none !important;
+  font-size: 16px !important;
+  font-weight: 650;
+  color-scheme: dark;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
+#app select:not(#ascensionLevel) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23DDE6F5' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 14px center !important;
+  background-size: 14px 14px !important;
+}
+#app select:not(#ascensionLevel) option {
+  color:#f6f8fd !important;
+  background:#202d43 !important;
+}
+#app select:not(#ascensionLevel):focus-visible,
+#app input[list]:focus-visible,
+#px-stars-character-select:focus-visible {
+  outline: 2px solid var(--px-gold) !important;
+  outline-offset: 2px;
+}
+
+/* Un único select para escoger personaje en Ficha de estrellas. */
+.px-stars-selected-row {
+  display:block !important;
+  min-width:0;
+  padding:0 !important;
+  min-height:0 !important;
+  border:0 !important;
+  background:transparent !important;
+}
+#px-stars-character-select {
+  display:block;
+  width:100%;
+  min-width:0;
+  max-width:100%;
+  min-height:51px;
+  background:#202d43 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23DDE6F5' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") right 14px center / 14px 14px no-repeat;
+  color:#f5f7fd;
+  border:1px solid #3d4f6a;
+  border-radius:11px;
+  padding:12px 42px 12px 15px;
+  font-size:16px;
+  font-weight:650;
+  -webkit-appearance:none;
+  appearance:none;
+  color-scheme:dark;
+}
+#px-stars-character-select option { color:#f5f7fd; background:#202d43; }
+#px-stars-character[hidden] { display:none !important; }
+
+/* Una sola columna estrecha en móvil: ficha por encima de ajustes, sin barras laterales. */
+@media (max-width: 900px) {
+  #app { width:100% !important; max-width:100% !important; }
+  #app #preview { display:block; width:min(100%,500px) !important; height:auto !important; aspect-ratio:1; margin:0 auto 18px !important; }
+  #app #preview canvas { max-width:100%; width:100% !important; height:100% !important; }
+  .px-stars-layout { display:grid; grid-template-columns:minmax(0,1fr) !important; }
+}
+@media (max-width: 620px) {
+  .px-main { width:calc(100% - 24px) !important; margin-inline:auto; }
+  #app { padding:14px !important; }
+  #app .input-group { max-width:100%; min-width:0; }
+  #app :is(select, input, textarea) { font-size:16px !important; }
+  #app .px-native-champion-wrap { display:block !important; }
+  #app #preview { max-width:100% !important; }
+  .px-stars-preview-pane { position:static; }
+  .px-stars-controls { padding:16px !important; }
+}
+
+/* Variante input+datalist: la lista se presenta siempre como select real. */
+#app input.px-champion-native-hidden { display:none !important; }
+#app select.px-champion-native-proxy { display:block !important; width:100% !important; }
