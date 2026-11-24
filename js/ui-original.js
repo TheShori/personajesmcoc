@@ -1,156 +1,160 @@
 /**
- * PORTRAYER STUDIO — selector de personajes sencillo (TEST).
- *
- * No abre ventanas, no mueve el editor original, no hace consultas a GitHub.
- * En Retrato clásico se usa directamente el selector del motor original.
- * En Ficha de estrellas se muestra un segundo <select> sincronizado con aquel.
+ * Portrayer — selectores originales, sin biblioteca emergente.
+ * MODO CLÁSICO: respeta el selector real de Vue.
+ * Si Vue usa input+datalist, muestra UN <select> y deja el input oculto
+ * únicamente como fuente de datos para el motor original.
+ * MODO ESTRELLAS: sincroniza su lista con el mismo selector.
  */
 (() => {
   'use strict';
   const app = document.getElementById('app');
-  const mirror = document.getElementById('px-stars-character-select');
-  if (!app || !mirror) return;
+  const stars = document.getElementById('px-stars-character-select');
+  if (!app || !stars) return;
 
-  let nativeControl = null;
-  let observer = null;
-  let refreshQueued = false;
-  let currentOptionsKey = '';
-  let proxy = null;
+  let original = null;
+  let originalType = '';
+  let classicSelect = null;
+  let classicWrapper = null;
+  let optionsHash = '';
+  let syncing = false;
 
-  function normalise(text) {
-    return String(text ?? '').normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .trim().toLowerCase();
-  }
+  const selectorLabel = /personaje\s+a\s+elegir|champion\s+to\s+choose|select champion|selecciona personaje/i;
 
-  function getNativeControl() {
-    const label = [...app.querySelectorAll('label')].find(item =>
-      /personaje\s+a\s+elegir|champion\s+to\s+choose|select\s+champion|selecciona\s+personaje/i.test(item.textContent || '')
-    );
+  function locate() {
+    const labels = [...app.querySelectorAll('label')];
+    const label = labels.find(l => selectorLabel.test(l.textContent || ''));
     if (label) {
-      const inLabel = label.querySelector('select, input[list]');
-      if (inLabel) return inLabel;
       const group = label.closest('.input-group') || label.parentElement;
-      const inGroup = group?.querySelector('select, input[list]');
-      if (inGroup) return inGroup;
-      const next = label.nextElementSibling;
-      if (next?.matches?.('select,input[list]')) return next;
+      return label.querySelector('select:not(.px-champion-proxy),input[list]') ||
+        group?.querySelector('select:not(.px-champion-proxy),input[list]') ||
+        label.nextElementSibling?.matches('select,input[list]') && label.nextElementSibling;
     }
-    return app.querySelector('select:not(#ascensionLevel):not([id^="px-"]), input[list]');
+    return app.querySelector('input[list],select:not(#ascensionLevel):not(.px-champion-proxy)');
   }
 
   function getOptions(control) {
     if (!control) return [];
-    const options = control.tagName === 'SELECT'
-      ? Array.from(control.options)
-      : Array.from(control.list?.options || app.querySelector('datalist')?.options || []);
-    return options.map(option => ({
-      value: String(option.value || ''),
-      label: String(option.label || option.textContent || option.value || '').trim()
-    })).filter(option => option.value || option.label);
+    const list = control.tagName === 'SELECT'
+      ? control.options
+      : (control.list?.options || app.querySelector('datalist')?.options);
+    if (!list) return [];
+    return Array.from(list, o => ({
+      value: String(o.value || ''),
+      text: String(o.label || o.textContent || o.value || '').trim()
+    })).filter(o => o.value !== '');
   }
 
-  function dispatchSelection(value) {
-    document.dispatchEvent(new CustomEvent('px:champion-selected', {
-      detail: { name: value, value }
-    }));
+  function setModel(control, value) {
+    if (!control || value === control.value) return;
+    const proto = control.tagName === 'SELECT' ? HTMLSelectElement.prototype : HTMLInputElement.prototype;
+    Object.getOwnPropertyDescriptor(proto, 'value')?.set?.call(control, value);
+    if (control.value !== value) control.value = value;
+    control.dispatchEvent(new Event('input', { bubbles: true }));
+    control.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
-  function writeNativeValue(control, value) {
-    const prototype = control.tagName === 'SELECT'
-      ? HTMLSelectElement.prototype : HTMLInputElement.prototype;
-    const setter = Object.getOwnPropertyDescriptor(prototype, 'value')?.set;
-    if (setter) setter.call(control, value);
-    else control.value = value;
-    control.dispatchEvent(new Event('input', {bubbles: true}));
-    control.dispatchEvent(new Event('change', {bubbles: true}));
+  function announce(value) {
+    document.dispatchEvent(new CustomEvent('px:champion-selected',
+      {detail: { name: value, value }}));
   }
 
-  function rebuildOptions(control) {
+  function buildProxy(control) {
+    if (control.tagName !== 'INPUT') return;
+    classicSelect?.remove();
+    classicSelect = document.createElement('select');
+    classicSelect.className = 'px-champion-proxy';
+    classicSelect.setAttribute('aria-label','Personaje a elegir');
+    classicSelect.addEventListener('change', () => {
+      setModel(control, classicSelect.value);
+      announce(classicSelect.value);
+    });
+
+    // Un único desplegable visible: se oculta la entrada antigua, pero
+    // permanece conectada a Vue y sigue recibiendo input/change.
+    const group = control.closest('.input-group') || control.closest('label') || control.parentElement;
+    const parent = control.parentElement;
+    control.classList.add('px-original-champion-input');
+    if (group) group.classList.add('px-champion-source-group');
+    if (parent && parent !== group) {
+      parent.classList.add('px-champion-native-container');
+    } else if (group) {
+      group.classList.add('px-champion-native-container');
+    }
+    (group || parent || app).appendChild(classicSelect);
+  }
+
+  function ensureControl(control) {
+    if (!control || original === control) return;
+    if (original) {
+      original.removeEventListener('change', fromOriginal);
+      original.removeEventListener('input', fromOriginal);
+      original.classList.remove('px-original-champion-input');
+    }
+    classicWrapper?.classList.remove('px-champion-native-container');
+    classicSelect?.remove();
+    classicSelect = null;
+    original = control;
+    originalType = control.tagName;
+    optionsHash = '';
+    classicWrapper = original.parentElement;
+    original.addEventListener('change', fromOriginal);
+    original.addEventListener('input', fromOriginal);
+    if (control.tagName === 'INPUT') buildProxy(control);
+  }
+
+  function renderOptions(control) {
     const options = getOptions(control);
     if (!options.length) return;
-    const key = options.map(o => o.value + '\u0000' + o.label).join('\u0001');
-    if (key !== currentOptionsKey) {
-      function makeOptions() {
-        const fragment = document.createDocumentFragment();
-        for (const {value,label} of options) {
-          const option = document.createElement('option');
-          option.value = value;
-          option.textContent = label || value;
-          fragment.append(option);
+    const hash = options.map(o=>o.value+'\u0001'+o.text).join('\u0002');
+    if (hash !== optionsHash) {
+      optionsHash = hash;
+      for (const select of [stars, classicSelect].filter(Boolean)) {
+        const f = document.createDocumentFragment();
+        for (const opt of options) {
+          const node = document.createElement('option');
+          node.value = opt.value;
+          node.textContent = opt.text || opt.value;
+          f.appendChild(node);
         }
-        return fragment;
+        select.replaceChildren(f);
+        select.disabled = false;
       }
-      mirror.replaceChildren(makeOptions());
-      mirror.disabled = false;
-      if (proxy) proxy.replaceChildren(makeOptions());
-      currentOptionsKey = key;
     }
   }
 
-  function syncFromNative() {
-    const control = nativeControl;
-    if (!control) return;
-    rebuildOptions(control);
-    if (control.value && mirror.value !== control.value) mirror.value = control.value;
-    if (proxy && proxy.value !== control.value) proxy.value = control.value;
-    dispatchSelection(control.value || '');
+  function fromOriginal() {
+    if (!original || syncing) return;
+    syncing = true;
+    try {
+      renderOptions(original);
+      if (stars.value !== original.value) stars.value = original.value;
+      if (classicSelect && classicSelect.value !== original.value) classicSelect.value = original.value;
+    } finally { syncing = false; }
+    announce(original.value);
   }
 
-  function bindNative(control) {
-    if (!control || nativeControl === control) return;
-    if (nativeControl) {
-      nativeControl.removeEventListener('change', syncFromNative);
-      nativeControl.removeEventListener('input', syncFromNative);
-    }
-    proxy?.remove();
-    proxy = null;
-    nativeControl = control;
-    nativeControl.addEventListener('change', syncFromNative);
-    nativeControl.addEventListener('input', syncFromNative);
-    currentOptionsKey = '';
-
-    // Algunas versiones del motor usan <input list=…> en vez de <select>.
-    // En ese caso lo conservamos para Vue pero mostramos un desplegable real.
-    if (control.tagName === 'INPUT' && getOptions(control).length) {
-      proxy = document.createElement('select');
-      proxy.className = 'px-champion-native-proxy';
-      proxy.setAttribute('aria-label', 'Personaje a elegir');
-      proxy.addEventListener('change', () => {
-        if (proxy.value !== control.value) writeNativeValue(control, proxy.value);
-        else dispatchSelection(proxy.value);
-      });
-      control.insertAdjacentElement('afterend', proxy);
-      control.classList.add('px-champion-native-hidden');
-    }
-  }
-
-  function refresh() {
-    refreshQueued = false;
-    const control = getNativeControl();
-    if (!control) return;
-    bindNative(control);
-    syncFromNative();
-  }
-
-  function queueRefresh() {
-    if (refreshQueued) return;
-    refreshQueued = true;
-    requestAnimationFrame(refresh);
-  }
-
-  mirror.addEventListener('change', () => {
-    const control = nativeControl || getNativeControl();
-    if (!control) return;
-    const value = mirror.value;
-    if (value !== control.value) writeNativeValue(control,value);
-    else dispatchSelection(value);
+  stars.addEventListener('change', () => {
+    if (!original) refresh();
+    if (!original) return;
+    setModel(original, stars.value);
+    fromOriginal();
   });
 
-  // Vue monta el selector de forma asíncrona y en ocasiones reconstruye las options.
-  // Observar SOLO sus cambios de DOM mantiene la lista actualizada sin duplicar botones.
-  observer = new MutationObserver(queueRefresh);
-  observer.observe(app, {childList: true, subtree: true, characterData: true});
-  queueRefresh();
-  window.addEventListener('pageshow', queueRefresh);
+  function refresh() {
+    const c = locate();
+    if (c) {
+      ensureControl(c);
+      renderOptions(c);
+      if (stars.value !== c.value && c.value) stars.value = c.value;
+      if (classicSelect && classicSelect.value !== c.value && c.value) classicSelect.value = c.value;
+    }
+  }
+
+  // Vue monta la aplicación después del DOM principal. Revisión de opciones
+  // a intervalo moderado, sin observar los cambios de los canvas.
+  const timer = setInterval(refresh, 900);
+  refresh();
+  window.addEventListener('pageshow', refresh);
+  window.addEventListener('load', refresh);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
 })();
