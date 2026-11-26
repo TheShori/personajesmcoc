@@ -162,6 +162,20 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible,.c
 .px-ascension-status { color:var(--px-muted); font-size:12px; min-height:36px; margin:0; }
 .px-ascension-clear { width:fit-content; min-height:42px; padding:9px 14px; border:1px solid #40516e; border-radius:8px; color:#e8cc92; background:#1e293b; font-size:13px; }
 #px-ascension-view button:disabled { opacity:.45; cursor:default; }
+.px-champion-picker { position:relative; min-width:0; width:100%; }
+.px-champion-picker.is-open { z-index:35; }
+.px-champion-picker__trigger { position:relative; width:100%; min-height:46px; padding:10px 38px 10px 12px; border:1px solid #354258; border-radius:8px; background:#202b3d; color:#f4f6fb; text-align:left; font:500 14px/1.4 system-ui,sans-serif; }
+.px-champion-picker__trigger::after { content:''; position:absolute; right:16px; top:20px; border:5px solid transparent; border-bottom:0; border-top-color:#e8c47f; }
+.px-champion-picker.is-open .px-champion-picker__trigger { border-color:var(--px-gold); }
+.px-champion-picker.is-open .px-champion-picker__trigger::after { transform:rotate(180deg); }
+.px-champion-picker__popup { position:absolute; top:calc(100% + 6px); left:0; width:100%; border:1px solid #526078; border-radius:10px; background:#182233; box-shadow:0 16px 30px #0008; overflow:hidden; }
+.px-champion-picker__popup input { display:block; width:100%; min-width:0; min-height:46px; padding:10px 12px; border:0; border-bottom:1px solid #354258; border-radius:0; background:#101824; color:#f4f6fb; font:500 16px/1.4 system-ui,sans-serif; }
+.px-champion-picker__popup input:focus { outline-offset:-3px; }
+.px-champion-picker__list { max-height:260px; max-height:min(260px,40dvh); overflow-y:auto; overscroll-behavior:contain; }
+.px-champion-picker__option { min-height:42px; padding:11px 12px; color:#eff4fc; font:500 14px/1.4 system-ui,sans-serif; cursor:pointer; overflow-wrap:anywhere; }
+.px-champion-picker__option:hover,.px-champion-picker__option.is-highlighted { background:#334461; color:#fff; }
+.px-champion-picker__option[aria-selected=true] { color:var(--px-gold); }
+.px-champion-picker__notice { margin:0; padding:9px 12px; border-top:1px solid #354258; color:var(--px-muted); font-size:11px; }
 @media(max-width:480px) {
   .px-mode-tab { font-size:10px; padding:10px 5px; }
 }

@@ -94,7 +94,7 @@
   select.addEventListener('change', chooseChampion);
   el('px-ascension-clear').addEventListener('click', () => {
     select.value = '';
-    chooseChampion();
+    select.dispatchEvent(new Event('change', {bubbles: true}));
   });
   document.addEventListener('px:mode-changed', event => {
     if (event.detail.mode === 'ascension') draw();
