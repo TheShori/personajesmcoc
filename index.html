@@ -18,7 +18,7 @@
 </script>
 <link href="./assets/index.87520ace.css" rel="stylesheet"/>
 <!-- Solo se añaden estilos; se conserva el renderizador, datos y selector original. -->
-<link href="./css/redesign.css?v=20261126-studio2" rel="stylesheet"/>
+<link href="./css/redesign.css?v=20261126-ascension1" rel="stylesheet"/>
 </head>
 <body>
 <div aria-hidden="true" class="px-background">
@@ -44,7 +44,7 @@
 <p>Elige un campeón, personaliza sus detalles y descarga tu creación.</p></div>
 <span class="px-format">PNG · 500 × 500 px</span>
 </section>
-<!-- Navegación entre los dos generadores. No se desmonta el motor original. -->
+<!-- Navegación entre los tres generadores. No se desmonta el motor original. -->
 <nav aria-label="Tipo de retrato" class="px-mode-tabs" role="tablist">
 <button aria-controls="px-original-mode" aria-selected="true" class="px-mode-tab is-active" id="px-tab-original" role="tab" type="button">
      ✦ Retrato clásico
@@ -52,6 +52,7 @@
 <button aria-controls="px-stars-view" aria-selected="false" class="px-mode-tab" id="px-tab-stars" role="tab" type="button">
      ★ Ficha de estrellas
     </button>
+<button aria-controls="px-ascension-view" aria-selected="false" class="px-mode-tab" id="px-tab-ascension" role="tab" tabindex="-1" type="button">FICHA ASCENSION+</button>
 </nav>
 <div aria-labelledby="px-tab-original" id="px-original-mode" role="tabpanel">
 <!-- Vista de edición: se muestra al seleccionar cualquier campeón. -->
@@ -236,6 +237,22 @@
 </div>
 </div>
 </section>
+<section aria-labelledby="px-tab-ascension" hidden id="px-ascension-view" role="tabpanel">
+<div class="px-stars-layout">
+<div class="px-stars-preview-pane">
+<div class="px-stars-preview-top"><span>VISTA PREVIA EN DIRECTO</span><span>500 × 500 PNG</span></div>
+<canvas aria-label="Ficha Ascensión+ vacía, con marco dorado y fondo violeta" width="500" height="500" id="px-ascension-canvas" role="img"></canvas>
+</div>
+<div class="px-stars-controls" aria-label="Opciones de ficha Ascensión+">
+<div class="px-stars-section-head"><span class="px-eyebrow">FICHA ASCENSION+</span><h2>Elige tu campeón</h2></div>
+<p class="px-ascension-description">Marco dorado y fondo violeta. Añade el personaje que quieras a tu ficha.</p>
+<div class="px-stars-field"><label for="px-ascension-character-select">Personaje de la ficha</label>
+<select id="px-ascension-character-select" disabled><option value="">Sin personaje · marco vacío</option></select></div>
+<button class="px-ascension-clear" id="px-ascension-clear" type="button">Quitar personaje</button>
+<p id="px-ascension-status" class="px-ascension-status" role="status" aria-live="polite">Cargando marco…</p>
+<button class="px-stars-download" id="px-ascension-download" type="button" disabled>↓ Descargar ficha PNG</button>
+</div></div>
+</section>
 <p class="px-footnote">Portrayer Studio · Retratos y fichas para tu colección MCOC</p>
 </main>
 
@@ -244,9 +261,11 @@
 </script>
 <script src="./js/png-export.js"></script><script src="./js/compat-original.js">
 </script>
-<script defer="" src="./js/ui-original.js?v=20261126-studio2">
+<script defer="" src="./js/ui-original.js?v=20261126-ascension1">
 </script>
-<script defer="" src="./js/stars-mode.js?v=20261123-2">
+<script defer="" src="./js/stars-mode.js?v=20261126-ascension1">
 </script>
+<script defer src="./js/ascension-mode.js?v=20261126-ascension1"></script>
+<script defer src="./js/modes.js?v=20261126-ascension1"></script>
 </body>
 </html>

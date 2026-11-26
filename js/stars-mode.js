@@ -353,13 +353,6 @@
       }
     }
     state.active = isStars;
-    document.body.classList.toggle('px-stars-mode', isStars);
-    stars.hidden = !isStars;
-    classical.hidden = isStars;
-    el('px-tab-original').classList.toggle('is-active', !isStars);
-    el('px-tab-stars').classList.toggle('is-active', isStars);
-    el('px-tab-original').setAttribute('aria-selected', String(!isStars));
-    el('px-tab-stars').setAttribute('aria-selected', String(isStars));
     if (isStars) {
       if (!state.champion) setChampionName(championInput()?.value || '');
       syncFrameToOriginal();
@@ -411,8 +404,7 @@
     }
   }
 
-  el('px-tab-original').addEventListener('click', () => showMode('original'));
-  el('px-tab-stars').addEventListener('click', () => showMode('stars'));
+  document.addEventListener('px:mode-changed', event => showMode(event.detail.mode));
   el('px-stars-download').addEventListener('click', download);
 
   choices.count.addEventListener('change', () => {
