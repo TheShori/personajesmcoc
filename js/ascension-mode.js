@@ -11,7 +11,7 @@
   const download = el('px-ascension-download');
   if (!canvas || !select || !source) return;
   const ctx = canvas.getContext('2d');
-  const state = {frame: null, background: null, portrait: null, loading: false, error: '', revision: 0};
+  const state = {frame: null, background: null, portrait: null, champion: '', loading: false, error: '', revision: 0};
   const extensions = new Set(['nicominoru', 'METARANGO4', 'novaleMETARANGO3', 'METARANGO5', 'karolinadean']);
 
   // Inner opening follows the two projecting gold corners. The supplied frame
@@ -71,8 +71,10 @@
   copyCatalogue();
 
   async function chooseChampion() {
-    const revision = ++state.revision;
     const slug = select.value;
+    if (slug === state.champion && !state.error) { draw(); return; }
+    const revision = ++state.revision;
+    state.champion = slug;
     state.portrait = null;
     state.error = '';
     state.loading = !!slug;
@@ -93,14 +95,26 @@
     state.loading = false;
     draw();
   }
-  select.addEventListener('change', chooseChampion);
+  function syncChampion(value = window.PortrayerSelection?.value) {
+    if (!value || ![...select.options].some(option => option.value === value)) return;
+    select.value = value;
+    chooseChampion();
+  }
+  select.addEventListener('change', () => {
+    chooseChampion();
+    if (select.value) document.dispatchEvent(new CustomEvent('px:champion-requested', {
+      detail: {value: select.value}
+    }));
+  });
+  document.addEventListener('px:champion-selected', event => syncChampion(event.detail?.value));
   el('px-ascension-clear').addEventListener('click', () => {
     select.value = '';
     select.dispatchEvent(new Event('change', {bubbles: true}));
   });
   document.addEventListener('px:mode-changed', event => {
-    if (event.detail.mode === 'ascension') draw();
+    if (event.detail.mode === 'ascension') { syncChampion(); draw(); }
   });
+  syncChampion();
   download.addEventListener('click', () => {
     draw();
     if (download.disabled) return;

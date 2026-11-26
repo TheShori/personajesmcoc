@@ -3,7 +3,7 @@
  * MODO CLÁSICO: respeta el selector real de Vue.
  * Si Vue usa input+datalist, muestra UN <select> y deja el input oculto
  * únicamente como fuente de datos para el motor original.
- * MODO ESTRELLAS: sincroniza su lista con el mismo selector.
+ * Los tres modos comparten la última selección de personaje.
  */
 (() => {
   'use strict';
@@ -18,6 +18,7 @@
   let optionsHash = '';
   let syncing = false;
   let pendingChampion = '';
+  let selectedChampion = '';
   const choiceOptions = new Map();
 
   const selectorLabel = /personaje\s+a\s+elegir|champion\s+to\s+choose|select champion|selecciona personaje/i;
@@ -88,9 +89,15 @@
   }
 
   function announce(value) {
+    if (!value) return;
+    selectedChampion = value;
     document.dispatchEvent(new CustomEvent('px:champion-selected',
       {detail: { name: value, value }}));
   }
+
+  // Late-loading renderers can read the current selection without replaying
+  // a native change event or triggering a selection loop.
+  window.PortrayerSelection = Object.freeze({get value() { return selectedChampion; }});
 
   function buildProxy(control) {
     if (control.tagName !== 'INPUT') return;
@@ -171,13 +178,22 @@
     announce(original.value);
   }
 
-  stars.addEventListener('change', () => {
-    const chosen = stars.value;
-    if (!chosen) return;
+  function selectChampion(chosen) {
+    if (!chosen || !getOptions(original).some(option => option.value === chosen)) return;
     if (!original) refresh();
-    if (!original) { pendingChampion = chosen; return; }
+    if (!original) {
+      pendingChampion = chosen;
+      stars.value = chosen;
+      announce(chosen);
+      return;
+    }
     setModel(original, chosen);
     fromOriginal();
+  }
+
+  stars.addEventListener('change', () => selectChampion(stars.value));
+  document.addEventListener('px:champion-requested', event => {
+    selectChampion(event.detail?.value);
   });
 
   function refresh() {
@@ -203,6 +219,7 @@
       }
       if (stars.value !== c.value && c.value) stars.value = c.value;
       if (classicSelect && classicSelect.value !== c.value && c.value) classicSelect.value = c.value;
+      if (c.value && selectedChampion !== c.value) announce(c.value);
     }
   }
 
