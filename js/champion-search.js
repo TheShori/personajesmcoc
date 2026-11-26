@@ -50,7 +50,7 @@
     let matches = [], active = -1;
     function sync() {
       trigger.textContent = select.selectedOptions[0]?.textContent || 'Elige un personaje…';
-      trigger.disabled = select.disabled || !select.options.length;
+      trigger.disabled = select.disabled || ![...select.options].some(option => !option.disabled && option.value);
     }
     function highlight(index, scroll = false) {
       active = index;

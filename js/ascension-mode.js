@@ -58,10 +58,12 @@
   }
 
   function copyCatalogue() {
-    const options = [...source.options].filter(option => option.value);
+    const options = window.PortrayerChampions?.length
+      ? window.PortrayerChampions
+      : [...source.options].filter(option => option.value).map(option => ({value: option.value, text: option.textContent}));
     if (!options.length) return;
     const value = select.value;
-    select.replaceChildren(new Option('Sin personaje · marco vacío', ''), ...options.map(o => new Option(o.textContent, o.value)));
+    select.replaceChildren(new Option('Sin personaje · marco vacío', ''), ...options.map(o => new Option(o.text, o.value)));
     select.value = value;
     select.disabled = false;
   }

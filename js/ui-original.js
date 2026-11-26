@@ -17,11 +17,16 @@
   let classicWrapper = null;
   let optionsHash = '';
   let syncing = false;
+  let pendingChampion = '';
   const choiceOptions = new Map();
 
   const selectorLabel = /personaje\s+a\s+elegir|champion\s+to\s+choose|select champion|selecciona personaje/i;
 
   function locate() {
+    // Use the real element identity; translated labels and Choices wrappers
+    // must not decide whether the catalogue is available.
+    const nativeSelect = app.querySelector('select#portrait');
+    if (nativeSelect) return nativeSelect;
     const labels = [...app.querySelectorAll('label')];
     const label = labels.find(l => selectorLabel.test(l.textContent || ''));
     if (label) {
@@ -34,6 +39,7 @@
   }
 
   function getOptions(control) {
+    if (window.PortrayerChampions?.length) return window.PortrayerChampions;
     if (!control) return [];
     // Choices keeps only the active option in its native select. Read its
     // rendered catalogue and retain entries while the search filters the list.
@@ -137,6 +143,7 @@
     if (hash !== optionsHash) {
       optionsHash = hash;
       for (const select of [stars, classicSelect].filter(Boolean)) {
+        const previousValue = select.value;
         const f = document.createDocumentFragment();
         for (const opt of options) {
           const node = document.createElement('option');
@@ -145,6 +152,9 @@
           f.appendChild(node);
         }
         select.replaceChildren(f);
+        if (options.some(option => option.value === previousValue)) select.value = previousValue;
+        else if (options.some(option => option.value === control?.value)) select.value = control.value;
+        else if (options.some(option => option.value === 'maestro')) select.value = 'maestro';
         select.disabled = false;
       }
     }
@@ -162,9 +172,11 @@
   }
 
   stars.addEventListener('change', () => {
+    const chosen = stars.value;
+    if (!chosen) return;
     if (!original) refresh();
-    if (!original) return;
-    setModel(original, stars.value);
+    if (!original) { pendingChampion = chosen; return; }
+    setModel(original, chosen);
     fromOriginal();
   });
 
@@ -177,9 +189,18 @@
       search.placeholder = 'Buscar campeón…';
     }
     const c = locate();
+    // Populate immediately even while the Vue module is still loading or
+    // its classic panel has never been opened.
+    renderOptions(c);
     if (c) {
       ensureControl(c);
       renderOptions(c);
+      if (pendingChampion) {
+        const chosen = pendingChampion;
+        pendingChampion = '';
+        setModel(c, chosen);
+        fromOriginal();
+      }
       if (stars.value !== c.value && c.value) stars.value = c.value;
       if (classicSelect && classicSelect.value !== c.value && c.value) classicSelect.value = c.value;
     }
