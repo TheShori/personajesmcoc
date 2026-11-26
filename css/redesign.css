@@ -179,3 +179,41 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible,.c
 @media(max-width:480px) {
   .px-mode-tab { font-size:10px; padding:10px 5px; }
 }
+
+/* Publishing a new champion */
+.px-header { gap: 20px; flex-wrap: wrap; }
+#px-add-champion { margin: 0; white-space: nowrap; }
+.px-champion-dialog { color: #edf0f6; background: #171f2b; border: 1px solid #36455d; border-radius: 22px; width: min(680px, calc(100vw - 24px)); max-height: calc(100dvh - 32px); padding: 28px; box-sizing: border-box; overflow-y: auto; }
+.px-champion-dialog::backdrop { background: rgb(3 7 14 / 82%); backdrop-filter: blur(5px); }
+.px-upload-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.px-upload-heading h2 { font-size: 26px; margin: 8px 0 0; }
+#px-upload-close { font: 30px/1 sans-serif; background:#243044; color:#edf0f6; border:1px solid #40506b; border-radius:10px; width:42px; height:42px; flex-shrink:0; cursor:pointer; }
+.px-champion-dialog p { line-height: 1.55; color:#b6c2d5; }
+.px-champion-dialog fieldset { min-width:0; margin:0; padding:0; border:0; }
+.px-champion-dialog label { display:flex; flex-direction:column; gap:9px; margin:18px 0 0; color:#dce3ef; font-weight:600; }
+.px-champion-dialog input, .px-champion-dialog select { font:inherit; font-weight:400; box-sizing:border-box; width:100%; min-width:0; color:#edf0f6; background:#202c3e; border:1px solid #40506b; border-radius:10px; padding:12px; min-height:46px; }
+.px-champion-dialog input[type=file] { font-size:14px; }
+.px-champion-dialog input::file-selector-button { padding:8px; margin-right:12px; border:0; border-radius:6px; background:#ecd08a; color:#241d0d; cursor:pointer; }
+.px-champion-dialog :focus-visible { outline:2px solid #f2cd7d; outline-offset:3px; }
+.px-upload-grid { display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
+.px-upload-hint { font-size:13px; overflow-wrap:anywhere; margin:10px 0; }
+#px-upload-preview { object-fit:contain; border:1px solid #40506b; border-radius:12px; background:repeating-conic-gradient(#283549 0% 25%,#1a2536 0% 50%) 0 / 20px 20px; }
+.px-upload-help { margin:20px 0; border:1px solid #40506b; padding:14px; border-radius:10px; font-size:14px; }
+.px-upload-help summary { cursor:pointer; font-weight:600; color:#f2cd7d; }
+.px-upload-help ol { padding-left:22px; line-height:1.6; color:#b6c2d5; }
+.px-upload-help li + li { margin-top:8px; }
+.px-champion-dialog a { color:#f2cd7d; text-decoration:underline; }
+#px-upload-status { font-size:14px; }
+#px-upload-status.is-error { color:#ffaba6; }
+#px-upload-result { display:inline-block; margin-bottom:16px; }
+#px-upload-result[hidden], #px-upload-preview[hidden] { display:none; }
+.px-champion-dialog :disabled { opacity:.6; cursor:wait; }
+#px-upload-submit { margin-top:16px; }
+#px-catalogue-notice { color:#f2cd7d; padding:12px; border:1px solid #40506b; border-radius:10px; }
+@media (max-width:600px) {
+  .px-champion-dialog { padding:20px; }
+  .px-upload-grid { grid-template-columns:1fr; gap:0; }
+  #px-add-champion { padding:10px 14px; font-size:14px; }
+}
+.px-champion-dialog { margin: auto; }
+.px-header { display:flex; align-items:center; justify-content:space-between; }

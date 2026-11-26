@@ -14,12 +14,13 @@
 <link href="./apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/>
 <link href="./site.webmanifest" rel="manifest"/>
 <script src="./js/champion-catalogue.js?v=20261126-catalogue3"></script>
+<script src="./js/champion-registry.js?v=20261126-upload1"></script>
 <!-- Motor ORIGINAL. Estas dos rutas y la carpeta assets/ NO deben borrarse. -->
-<script crossorigin="" src="./assets/index.8198a119.js?v=20261126-shared4" type="module">
+<script crossorigin="" src="./assets/index.8198a119.js?v=20261126-upload1" type="module">
 </script>
 <link href="./assets/index.87520ace.css" rel="stylesheet"/>
 <!-- Solo se añaden estilos; se conserva el renderizador, datos y selector original. -->
-<link href="./css/redesign.css?v=20261126-search1" rel="stylesheet"/>
+<link href="./css/redesign.css?v=20261126-upload1" rel="stylesheet"/>
 </head>
 <body>
 <div aria-hidden="true" class="px-background">
@@ -37,6 +38,7 @@
 <span>MARVEL CONTEST OF CHAMPIONS</span>
 </div>
 </div>
+<button type="button" id="px-add-champion" class="px-ascension-clear">＋ Añadir personaje</button>
 </header>
 <main class="px-main">
 <section class="px-intro" aria-labelledby="studio-title">
@@ -45,6 +47,7 @@
 <p>Elige un campeón, personaliza sus detalles y descarga tu creación.</p></div>
 <span class="px-format">PNG · 500 × 500 px</span>
 </section>
+<p id="px-catalogue-notice" role="status" hidden>No se han podido cargar los personajes añadidos. Recarga la página para volver a intentarlo.</p>
 <!-- Navegación entre los tres generadores. No se desmonta el motor original. -->
 <nav aria-label="Tipo de retrato" class="px-mode-tabs" role="tablist">
 <button aria-controls="px-original-mode" aria-selected="true" class="px-mode-tab is-active" id="px-tab-original" role="tab" type="button">
@@ -257,17 +260,45 @@
 <p class="px-footnote">Portrayer Studio · Retratos y fichas para tu colección MCOC</p>
 </main>
 
+<dialog id="px-champion-dialog" class="px-champion-dialog" aria-labelledby="px-upload-title">
+<div class="px-upload-heading"><div><span class="px-eyebrow">AMPLÍA TU COLECCIÓN</span><h2 id="px-upload-title">Añadir personaje</h2></div><button id="px-upload-close" type="button" aria-label="Cerrar">×</button></div>
+<p>Sube su retrato y elige su clase. Quedará guardado en GitHub y aparecerá en los tres buscadores para todos.</p>
+<form id="px-champion-form">
+<fieldset>
+<div class="px-upload-grid">
+<label>Nombre del personaje<input name="name" maxlength="80" required autocomplete="off" placeholder="Ej. Spider-Man Cósmico"/></label>
+<label>Clase<select name="className" required><option value="" disabled selected>Elige una clase</option><option value="science">Científico</option><option value="mystic">Místico</option><option value="cosmic">Cósmico</option><option value="tech">Tecnológico</option><option value="mutant">Mutante</option><option value="skill">Hábil</option><option value="universal">Universal / especial</option></select></label>
+</div>
+<label>Imagen del personaje<input name="image" type="file" accept="image/png,image/jpeg,image/webp" required/></label>
+<p class="px-upload-hint">PNG, JPG o WebP · Máximo 10 MB. Para que se integre con el marco, utiliza un retrato PNG con fondo transparente. Conservaremos las proporciones y la transparencia.</p>
+<img id="px-upload-preview" width="160" height="160" alt="Vista previa del nuevo personaje" hidden/>
+<label>Nombre del archivo<input name="slug" maxlength="80" pattern="[a-z0-9][a-z0-9_\-]{0,79}" required autocomplete="off" spellcheck="false" aria-describedby="px-upload-path"/></label>
+<p id="px-upload-path" class="px-upload-hint">assets/portraits/nombre_del_personaje.png</p>
+<details class="px-upload-help"><summary>Conectar con mi GitHub para publicar</summary>
+<p>Solo puede publicar quien tenga permiso de escritura en <strong>TheShori/personajesmcoc</strong>.</p>
+<ol><li>Abre <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener noreferrer">crear token de GitHub</a> e inicia sesión con tu cuenta.</li><li>En <strong>Repository access → Only select repositories</strong>, selecciona <strong>personajesmcoc</strong>.</li><li>En <strong>Repository permissions</strong>, configura <strong>Contents → Read and write</strong>. Elige una caducidad y pulsa <strong>Generate token</strong>.</li><li>Copia el token en el campo de abajo y pulsa «Publicar en GitHub».</li></ol>
+<p>El token se envía únicamente a GitHub. No se guarda en el navegador ni en el repositorio y se borra del formulario al cerrar o publicar.</p>
+</details>
+<label>Token de GitHub<input name="token" type="password" autocomplete="off" spellcheck="false" placeholder="Token con acceso a personajesmcoc" required/></label>
+</fieldset>
+<p id="px-upload-status" role="status" aria-live="polite"></p>
+<a id="px-upload-result" target="_blank" rel="noopener noreferrer" hidden>Ver personaje guardado en GitHub ↗</a>
+<button id="px-upload-submit" class="px-stars-download" type="submit">Publicar en GitHub</button>
+</form>
+</dialog>
+
 <!-- Antes de que se ejecute el motor type=module, registramos la compatibilidad heredada. -->
 <script src="./js/fit-name.js">
 </script>
 <script src="./js/png-export.js"></script><script src="./js/compat-original.js">
 </script>
-<script defer="" src="./js/ui-original.js?v=20261126-shared4">
+<script defer="" src="./js/ui-original.js?v=20261126-upload1">
 </script>
 <script defer="" src="./js/stars-mode.js?v=20261126-ascension1">
 </script>
-<script defer src="./js/ascension-mode.js?v=20261126-shared4"></script>
+<script defer src="./js/ascension-mode.js?v=20261126-upload1"></script>
 <script defer src="./js/modes.js?v=20261126-ascension1"></script>
 <script defer src="./js/champion-search.js?v=20261126-catalogue3"></script>
+<script defer src="./js/champion-manager.js?v=20261126-upload1"></script>
 </body>
 </html>

@@ -12,7 +12,6 @@
   if (!canvas || !select || !source) return;
   const ctx = canvas.getContext('2d');
   const state = {frame: null, background: null, portrait: null, champion: '', loading: false, error: '', revision: 0};
-  const extensions = new Set(['nicominoru', 'METARANGO4', 'novaleMETARANGO3', 'METARANGO5', 'karolinadean']);
 
   // Inner opening follows the two projecting gold corners. The supplied frame
   // is copied everywhere outside this opening, preserving its original pixels.
@@ -69,6 +68,7 @@
   }
   new MutationObserver(copyCatalogue).observe(source, {childList: true});
   copyCatalogue();
+  document.addEventListener('px:catalogue-updated', () => { copyCatalogue(); syncChampion(); });
 
   async function chooseChampion() {
     const slug = select.value;
@@ -82,8 +82,7 @@
     if (!slug) return;
     try {
       if (!/^[a-zA-Z0-9_-]+$/.test(slug)) throw new Error('Invalid portrait name');
-      const asset = slug === 'adaptoid_Gold' ? 'adaptoid_gold' : slug;
-      const image = await loadImage(`./assets/portraits/${asset}.${extensions.has(asset) ? 'PNG' : 'png'}`);
+      const image = await loadImage(window.PortrayerCatalogue.portraitURL(slug));
       if (revision !== state.revision) return;
       state.portrait = image;
     } catch (error) {

@@ -90,6 +90,16 @@
 
   function announce(value) {
     if (!value) return;
+    // Apply the catalogue class only when changing champion. Manual class
+    // adjustments stay intact when switching tabs or refreshing the controls.
+    if (value !== selectedChampion) {
+      const classSelect = app.querySelector('select#class');
+      const className = window.PortrayerCatalogue?.get(value)?.className;
+      if (classSelect && className && classSelect.value !== className) {
+        classSelect.value = className;
+        classSelect.dispatchEvent(new Event('change', {bubbles:true}));
+      }
+    }
     selectedChampion = value;
     document.dispatchEvent(new CustomEvent('px:champion-selected',
       {detail: { name: value, value }}));
@@ -135,6 +145,7 @@
     classicSelect?.remove();
     classicSelect = null;
     original = control;
+    selectedChampion = '';
     originalType = control.tagName;
     optionsHash = '';
     classicWrapper = original.parentElement;
@@ -225,6 +236,7 @@
 
   // Vue monta la aplicación después del DOM principal. Revisión de opciones
   // a intervalo moderado, sin observar los cambios de los canvas.
+  document.addEventListener('px:catalogue-updated', refresh);
   const timer = setInterval(refresh, 900);
   refresh();
   window.addEventListener('pageshow', refresh);
