@@ -17,6 +17,7 @@
   let classicWrapper = null;
   let optionsHash = '';
   let syncing = false;
+  const choiceOptions = new Map();
 
   const selectorLabel = /personaje\s+a\s+elegir|champion\s+to\s+choose|select champion|selecciona personaje/i;
 
@@ -34,6 +35,17 @@
 
   function getOptions(control) {
     if (!control) return [];
+    // Choices keeps only the active option in its native select. Read its
+    // rendered catalogue and retain entries while the search filters the list.
+    const picker = control.closest('.choices');
+    if (picker) {
+      for (const item of picker.querySelectorAll('[data-choice][data-value]')) {
+        choiceOptions.set(item.dataset.value, {
+          value: item.dataset.value, text: item.textContent.trim()
+        });
+      }
+      if (choiceOptions.size) return [...choiceOptions.values()];
+    }
     const list = control.tagName === 'SELECT'
       ? control.options
       : (control.list?.options || app.querySelector('datalist')?.options);
@@ -46,6 +58,22 @@
 
   function setModel(control, value) {
     if (!control || value === control.value) return;
+    const picker = control.closest('.choices');
+    if (picker) {
+      // Let Choices update its own selection and emit the original Vue event.
+      // Restore all choices first if the previous search filtered the target out.
+      const search = picker.querySelector('input[type="search"]');
+      if (search && search.value) {
+        search.value = '';
+        search.dispatchEvent(new KeyboardEvent('keyup', {bubbles:true, key:'Backspace', keyCode:8}));
+      }
+      const item = [...picker.querySelectorAll('[data-choice][data-value]')]
+        .find(node => node.dataset.value === value);
+      if (item) {
+        item.dispatchEvent(new MouseEvent('mousedown', {bubbles:true, cancelable:true}));
+        return;
+      }
+    }
     const proto = control.tagName === 'SELECT' ? HTMLSelectElement.prototype : HTMLInputElement.prototype;
     Object.getOwnPropertyDescriptor(proto, 'value')?.set?.call(control, value);
     if (control.value !== value) control.value = value;
@@ -141,6 +169,13 @@
   });
 
   function refresh() {
+    const download = app.querySelector('button.button-contest');
+    if (download && download.textContent.trim() === 'DOWNLOAD') download.textContent = '↓ Descargar retrato PNG';
+    const search = app.querySelector('.choices input[type="search"]');
+    if (search && search.getAttribute('aria-label') !== 'Buscar campeón') {
+      search.setAttribute('aria-label', 'Buscar campeón');
+      search.placeholder = 'Buscar campeón…';
+    }
     const c = locate();
     if (c) {
       ensureControl(c);
