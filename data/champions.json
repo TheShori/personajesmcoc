@@ -3,5 +3,10 @@
     "value": "bahamet",
     "text": "Bahamet",
     "className": "science"
+  },
+  {
+    "value": "chronoserpent",
+    "text": "Chronoserpiente",
+    "className": "universal"
   }
 ]
